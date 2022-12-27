@@ -1,7 +1,7 @@
 rm(list=ls())
 
 install.packages("tidyverse")
-setwd("C:\\Users\\louis\\OneDrive - GENES\\ENSAE\\ENSAE 2A\\1. Maths\\Statapp\\R Louis")
+setwd("C:\\Users\\louis\\Garch_Model_Assets")
 DAX = read.csv("^GDAXI.csv",sep=",")
 
 library (tidyverse)
@@ -21,11 +21,11 @@ DAX = mutate(DAX, rend_car = rendement**2) #rendement au carré
 prix = ggplot(data = DAX) + geom_line(aes(x = Date,y = Open))
 plot_rdt = ggplot(data = DAX) + geom_line(aes(x = Date,y = rendement))
 
-acf(na.omit(DAX$rendement))
-acf(na.omit((DAX$rend_car)))
-
 plot(prix)
 plot(plot_rdt)
+
+acf(na.omit(DAX$rendement))
+acf(na.omit((DAX$rend_car)))
 
 ### Simulation
 n = 10**5
