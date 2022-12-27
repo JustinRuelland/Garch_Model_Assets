@@ -17,17 +17,20 @@ DAX = select(DAX,-"Close",-"High",-"Low",-"Close",-"Adj.Close",-"Volume")
 DAX = mutate(DAX, rendement = log(DAX$Open/lag(DAX$Open))) #rendement
 DAX = mutate(DAX, rend_car = rendement**2) #rendement au carré
 
-
+## Prix & rendements
 prix = ggplot(data = DAX) + geom_line(aes(x = Date,y = Open))
 plot_rdt = ggplot(data = DAX) + geom_line(aes(x = Date,y = rendement))
 
 plot(prix)
 plot(plot_rdt)
 
+## Auto-corrélations
 acf(na.omit(DAX$rendement))
 acf(na.omit((DAX$rend_car)))
 
-### Simulation
+### Simulations
+
+## Représentations des (alpha,beta) vérifiant la condition de stationnarité
 n = 10**5
 x = rnorm(n)
 x <- x**2
@@ -39,14 +42,18 @@ for(a in c(1:200)){
   for(b in c(1:200)){
     
     beta = (b-1)/100
-    mu = mean(log(alpha*x + beta))
     
-    if (mu>=0){
-      res <- c(res,mu)
+    esp = mean(log(alpha*x + beta))
+    
+    if (esp>=0){
+      res <- c(res,beta)
       break
     }
+    
   }
 }
 
 
 plot(res,type="l")
+
+
