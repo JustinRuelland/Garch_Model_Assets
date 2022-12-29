@@ -1,2 +1,4 @@
 # Ignorer les fichiers types DS
 .DS_Store
+.RDATA
+.Rhistory
