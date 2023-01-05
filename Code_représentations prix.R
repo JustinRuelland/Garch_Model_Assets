@@ -32,15 +32,16 @@ acf(na.omit((DAX$rend_car)))
 
 ## Représentations des (alpha,beta) vérifiant la condition de stationnarité
 n = 10**5
-x = rnorm(n)
-x <- x**2
-res <- c()
 
-for(a in c(1:200)){
-  alpha = (a-1)/100
+
+Condition_stricte_statio <-function(x){
+res <- c()
+x<-x**2
+
+Abscisse_alpha=c(0:199)/100
+for(alpha in Abscisse_alpha){
   
   for(b in c(1:200)){
-    
     beta = (b-1)/100
     
     esp = mean(log(alpha*x + beta))
@@ -52,8 +53,33 @@ for(a in c(1:200)){
     
   }
 }
+Beta_values = res
+
+# Création du dataframe pour le mettre dans le ggplot
+
+Alpha_Beta = cbind(Abscisse_alpha,Beta_values)
+res_avec_abscisse = as.data.frame(Alpha_Beta)
+
+# ggplot
+Graph_condi_satio = ggplot(data = res_avec_abscisse) + aes(ymax = 1,ymin=0)+ geom_line(aes(x = Abscisse_alpha,y = Beta_values))
+print(Graph_condi_satio)
+
+return(1)
+}
 
 
-plot(res,type="l")
+# Loi normale
+x = rnorm(n)
+Condition_stricte_statio(x)
 
+# Loi de Cauchy
+x = rcauchy(n)
+Condition_stricte_statio(x)
 
+# Loi uniformes
+x = runif(n,min=-1,1)*sqrt(3)
+Condition_stricte_statio(x)
+
+# Loi Mises
+x = (rexp(n,2)-1/2)*2
+Condition_stricte_statio(x)
