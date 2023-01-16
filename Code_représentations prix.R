@@ -85,7 +85,8 @@ x = (rexp(n,2)-1/2)*2
 Condition_stricte_statio(x)
 
 
-
+#mettre en paramètre la fonction de simulation
+# par exemple "f = rnorm"
 cond_statio <- function(f){
   N = 200 #nombre de alphas
   M = 10**4 #nombre de betas (ne pas dépasser 10**4 à priori)
@@ -107,3 +108,4 @@ cond_statio <- function(f){
   y = apply(y,2,FUN=mean) #on fait la moyenne sur les betas
   return(plot(a,y,type='l'))
 }
+cond_statio(rnorm) #exemple
