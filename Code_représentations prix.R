@@ -83,3 +83,27 @@ Condition_stricte_statio(x)
 # Loi Mises
 x = (rexp(n,2)-1/2)*2
 Condition_stricte_statio(x)
+
+
+
+cond_statio <- function(f){
+  N = 200 #nombre de alphas
+  M = 10**4 #nombre de betas (ne pas dépasser 10**4 à priori)
+  nsimu= 10**6 #nombre de simulations
+  
+  a = seq(0,2,length.out=N) #abscisse
+  b=seq(0,1,length.out=M) #ordonnée
+  y = array(0,dim=c(M,N)) #résultat final
+  
+  for(i in range(nsimu)){
+    #on évalue tous les alphas et betas sur une simulation
+    xx = array(f(N*M,mean=0,sd=1), dim=c(N,M)) 
+    y = y + log(t(a*xx**2)+b)/nsimu #on ajoute à la moyenne le résultat
+  }
+  
+  #0 si espérance négative, 1 si positive
+  y[y>0]=0
+  y[y<0]=1
+  y = apply(y,2,FUN=mean) #on fait la moyenne sur les betas
+  return(plot(a,y,type='l'))
+}
