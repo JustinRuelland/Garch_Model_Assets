@@ -85,9 +85,9 @@ x = (rexp(n,2)-1/2)*2
 Condition_stricte_statio(x)
 
 
-#mettre en paramètre la fonction de simulation
-# par exemple "f = rnorm"
-cond_statio <- function(f){
+#mettre en paramètre la fonction de simulation et ses paramètres
+# par exemple "f = rnorm", et les paramètres 0 et 1
+cond_statio <- function(f,param1,param2){
   N = 200 #nombre de alphas
   M = 10**4 #nombre de betas (ne pas dépasser 10**4 à priori)
   nsimu= 10**6 #nombre de simulations
@@ -98,7 +98,7 @@ cond_statio <- function(f){
   
   for(i in range(nsimu)){
     #on évalue tous les alphas et betas sur une simulation
-    xx = array(f(N*M,mean=0,sd=1), dim=c(N,M)) 
+    xx = array(f(N*M,param1,param2), dim=c(N,M)) 
     y = y + log(t(a*xx**2)+b)/nsimu #on ajoute à la moyenne le résultat
   }
   
@@ -108,4 +108,4 @@ cond_statio <- function(f){
   y = apply(y,2,FUN=mean) #on fait la moyenne sur les betas
   return(plot(a,y,type='l'))
 }
-cond_statio(rnorm) #exemple
+cond_statio(rnorm,0,1) #exemple
