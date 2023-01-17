@@ -23,7 +23,9 @@ plot(data$eps2, type="l", col="black", main = "Rendements au carré de l'actif")
 acf(data$eps,type='correlation', na.action=na.pass, plot=TRUE)
 acf(data$eps2,type='correlation', na.action=na.pass, plot=TRUE)
 
-#------------------appel à une fonction d'un autre fichier.R---------------------------
+#------------------appel d'une fonction d'un autre fichier.R---------------------------
 
+#mettez l'url de votre pc vers le fichier (mettre des / et pas des \ dans l'url)
 source(file= "C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets/fonctions_statio.R",local=TRUE)
+#on peut executer une fonction de ce fichier importé, par exemple "cond_statio":
 cond_statio(rnorm,0,1)
