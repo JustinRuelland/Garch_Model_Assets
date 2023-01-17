@@ -1,7 +1,6 @@
 rm(list=ls())
 
 install.packages("tidyverse")
-setwd("C:\\Users\\louis\\Garch_Model_Assets")
 DAX = read.csv("^GDAXI.csv",sep=",")
 
 library (tidyverse)
