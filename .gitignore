@@ -2,3 +2,5 @@
 .DS_Store
 .RDATA
 .Rhistory
+main_personnel.R
+condi_statio_old.R
