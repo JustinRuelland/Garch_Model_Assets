@@ -87,9 +87,9 @@ Condition_stricte_statio(x)
 #mettre en paramètre la fonction de simulation et ses paramètres
 # par exemple "f = rnorm", et les paramètres 0 et 1
 cond_statio <- function(f,param1,param2){
-  N = 200 #nombre de alphas
+  N = 400 #nombre de alphas
   M = 10**4 #nombre de betas (ne pas dépasser 10**4 à priori)
-  nsimu= 10**6 #nombre de simulations
+  nsimu= 10**5 #nombre de simulations
   
   a = seq(0,2,length.out=N) #abscisse
   b=seq(0,1,length.out=M) #ordonnée
