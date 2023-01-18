@@ -1,9 +1,9 @@
 #--------------Imports des packages--------------------
 rm(list=ls())
 
-install.packages("ggplot2")
-install.packages("dplyr")
-install.packages('signal')
+install.packages("signal")
+install.packages("tidyverse") #contient notamment ggplot2, dplyr
+install.packages("lubridate")
 
 library(signal)
 library (tidyverse)
@@ -26,15 +26,14 @@ autocorrelations(data)
 
 #--------------- Conditions de stationnarité ---------------------
 source(file= "./condition_stationnarite.R",local=TRUE)
+
 condition_stationnarite(rnorm)
 
 runif_normalisee <-function(n){return(runif(n,-sqrt(3),sqrt(3)))}
-condition_stationnarite(runif_normalisee)
+condition_stationnarite(runif_normalisee)q
 
 rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))} # Loi de Student à 8 degrés de liberté
 condition_stationnarite(rt_8_normalisee)
-
-#A faire #Loi de Mises
 
 
 
