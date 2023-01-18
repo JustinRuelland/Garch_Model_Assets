@@ -9,12 +9,10 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 
-#---------------Imports des autres fonctions---------------------
-source(file = "./data_preparation.R",local= TRUE)
-source(file= "./condition_stationnarite.R",local=TRUE)
-
 
 #---------------Import et transformation des données--------------
+source(file = "./data_preparation.R",local= TRUE)
+
 data = read.csv("./^GDAXI.csv") #mettre le fichier de votre choix (provenant de Yahoo finance)
 
 data <- transform_csv(data)
@@ -24,12 +22,17 @@ plot_series_temp(data)
 autocorrelations(data)
 
 
-#--------------
-cond_statio(rnorm,0,1)
+#--------------- Conditions de stationnarité ---------------------
+source(file= "./condition_stationnarite.R",local=TRUE)
+condition_stationnarite(rnorm)
 
+runif_normalisee <-function(n){return(runif(n,-sqrt(3),sqrt(3)))}
+condition_stationnarite(runif_normalisee)
 
+rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))} # Loi de Student à 8 degrés de liberté
+condition_stationnarite(rt_8_normalisee)
 
-
+#A faire #Loi de Mises
 
 
 
@@ -38,4 +41,4 @@ cond_statio(rnorm,0,1)
 #mettez l'url de votre pc vers le fichier (mettre des / et pas des \ dans l'url)
 source(file= "./condition_stationnarite.R",local=TRUE)
 #on peut executer une fonction de ce fichier importé, par exemple "cond_statio":
-cond_statio(rnorm,0,1)
+condition_stationnarite(rnorm)
