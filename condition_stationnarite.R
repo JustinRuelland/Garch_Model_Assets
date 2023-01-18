@@ -11,7 +11,7 @@ condition_stationnarite <- function(loi_eta){
   M = 10**4 #nombre de betas (ne pas dépasser 10**4 à priori)
   nsimu= 10**5 #nombre de simulations
   
-  a = seq(0,2,length.out=N)
+  a = seq(0,3,length.out=N)
   b = seq(0,1,length.out=M)
   y = array(0,dim=c(M,N)) #résultat final
   
@@ -25,6 +25,9 @@ condition_stationnarite <- function(loi_eta){
   y[y>0]=0
   y[y<0]=1
   y = apply(y,2,FUN=mean) # sur les betas
+  #série filtrée
+  y = sgolayfilt(y, p =2, n=25) #p = degré des polynômes, n = nombre de points pour chaque polynôme
+  
   
   df = cbind(a,y)
   df = as.data.frame(df)
@@ -33,3 +36,4 @@ condition_stationnarite <- function(loi_eta){
   plot(Graph_condi_satio)
   
 }
+
