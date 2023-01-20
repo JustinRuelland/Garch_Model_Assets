@@ -25,13 +25,19 @@ simu_eps2 <- function(n,eps2_init,sigma2_init,theta){
   eps2[0] = eps2_init
   return(eps2)}
 
+simu_sigma2 <- function(sigma2_init,eps2,theta){
+  n = length(eps2)
+  sigmas2 = c(sigma2_init)
+  for(i in 2:n){sigmas2[i]=theta[1]+theta[2]*eps2[i-1]+theta[3]*sigmas2[i-1]}
+  return(sigmas2)}
+
 #---------------------- Methode du quasi-maximum de vraisemblance ----------
 QML <-function(eps2){
   n = length(eps2)
   
   f_opt <- function(theta_opt){
-    sigmas2_QML = c(theta_opt[1]/(1-theta_opt[2]-theta_opt[3]))
-    for(i in 2:n){sigmas2_QML[i]=theta_opt[1]+theta_opt[2]*eps2[i-1]+theta_opt[3]*sigmas2_QML[i-1]}
+    init = theta_opt[1]/(1-theta_opt[2]-theta_opt[3])
+    sigmas2_QML = simu_sigma2(init,eps2,theta_opt)
     #on retire les 20 premières données (négligeables cf notes)
     return(sum(log(sigmas2_QML[100:n])+(eps2[100:n]/sigmas2_QML[100:n]))) } 
   
