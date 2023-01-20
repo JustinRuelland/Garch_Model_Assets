@@ -1,4 +1,3 @@
-library(ggplot2)
 #---------------------paramètres initiaux------------
 omega_0 <- 0.01
 alpha_0 <- 0.12
@@ -46,13 +45,13 @@ QML <-function(eps2){
   ci <- c(0.001, -1, 0, -3, 0, -0.99)
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL))}
 
-res = matrix(0,100,3)
-for(i in 1:100){res[i,]=QML(simu_eps2(10**3,eps2_0,sigma2_0,theta_0))$par}
-res = as.data.frame(res)
-colnames(res) = c("omega","alpha","beta")
-res$omega = res$omega-omega_0
-res$alpha = res$alpha-alpha_0
-res$beta = res$beta-beta_0
-boxplot(res$omega)
-boxplot(res$alpha)
-boxplot(res$beta)
+#res = matrix(0,100,3)
+#for(i in 1:100){res[i,]=QML(simu_eps2(10**3,eps2_0,sigma2_0,theta_0))$par}
+#res = as.data.frame(res)
+#colnames(res) = c("omega","alpha","beta")
+#res$omega = res$omega-omega_0
+#res$alpha = res$alpha-alpha_0
+#res$beta = res$beta-beta_0
+#boxplot(res$omega)
+#boxplot(res$alpha)
+#boxplot(res$beta)
