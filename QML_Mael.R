@@ -29,23 +29,22 @@ func_suite_eps2 <- function(n,eps2_init,sigma2_init,eta2,theta){
   return(res)}
 
 #---------------------- Methode du quasi-maximum de vraisemblance ----------
-QML <-function(theta,eta2_QML){
-  n = length(eta2_QML)
-  eps2 = func_suite_eps2(n,eps2_0,sigma2_0,eta2_QML,theta)
+QML <-function(theta,n){
+  eps2 = func_suite_eps2(n,eps2_0,sigma2_0,rnorm(n,mean=0,sd=1)**2,theta)
   
   f_opt <- function(theta_opt){
-    sigma2_0_theta = theta_opt[1]/(1-theta_opt[2]-theta_opt[3])
-    sigmas2_QML = func_suite_sigma2(n,sigma2_0_theta,eta2_QML,theta_opt)
+    sigmas2_QML = c(theta_opt[1]/(1-theta_opt[2]-theta_opt[3]))
+    for(i in 2:n){sigmas2_QML[i]=theta_opt[1]+theta_opt[2]*eps2[i-1]+theta_opt[3]*sigmas2_QML[i-1]}
     #on retire les 20 premières données (négligeables cf notes)
-    return(sum(log(sigmas2_QML[20:n])+(eps2[20:n]/sigmas2_QML[20:n]))) } 
+    return(sum(log(sigmas2_QML[100:n])+(eps2[100:n]/sigmas2_QML[100:n]))) } 
   
-  theta_init = c(0.06,0.1,0.7)
+  theta_init = c(0.06,0.2,0.6)
   ui <- cbind(c(1,-1,0,0,0,0),c(0,0,1,-1,0,0),c(0,0,0,0,1,-1))
   ci <- c(0.001, -1, 0, -3, 0, -0.99)
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL))}
 
 res = matrix(0,100,3)
-for(i in 1:100){res[i,]=QML(theta_0,rnorm(10**3,mean=0,sd=1)**2)$par}
+for(i in 1:100){res[i,]=QML(theta_0,10**3)$par}
 res = as.data.frame(res)
 colnames(res) = c("omega","alpha","beta")
 res$omega = res$omega-omega_0
