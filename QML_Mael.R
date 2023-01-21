@@ -4,7 +4,7 @@ alpha_0 <- 0.12
 beta_0 <- 0.82
 theta_0 = c(omega_0,alpha_0,beta_0)
 eps2_0 = 0 
-sigma2_0 = omega_0/(1-alpha_0-beta_0)
+#sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
 #---------------------- calcul des sigma2 et des eps2 ------------------------
 
@@ -35,12 +35,12 @@ QML <-function(eps2){
   n = length(eps2)
   
   f_opt <- function(theta_opt){
-    init = theta_opt[1]/(1-theta_opt[2]-theta_opt[3])
+    init = mean(eps2) #theta_opt[1]/(1-theta_opt[2]-theta_opt[3]) ALTERNATIVE
     sigmas2_QML = simu_sigma2(init,eps2,theta_opt)
     #on retire les 20 premières données (négligeables cf notes)
-    return(sum(log(sigmas2_QML[100:n])+(eps2[100:n]/sigmas2_QML[100:n]))) } 
+    return(sum(log(sigmas2_QML[25:n])+(eps2[25:n]/sigmas2_QML[25:n]))) } 
   
-  theta_init = c(0.06,0.2,0.6)
+  theta_init = c(0.01,0.1,0.8)
   ui <- cbind(c(1,-1,0,0,0,0),c(0,0,1,-1,0,0),c(0,0,0,0,1,-1))
   ci <- c(0.001, -1, 0, -3, 0, -0.99)
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL))}
