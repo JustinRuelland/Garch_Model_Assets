@@ -1,11 +1,3 @@
-#---------------------paramètres initiaux------------
-omega_0 <- 0.01
-alpha_0 <- 0.12
-beta_0 <- 0.82
-theta_0 = c(omega_0,alpha_0,beta_0)
-eps2_0 = 0 
-sigma2_0 = omega_0/(1-alpha_0-beta_0)
-
 #---------------------- calcul des sigma2 et des eps2 ------------------------
 
 #calcul récurssif pour un sigma(t) précis (FACULTATIF)
@@ -49,7 +41,15 @@ QML <-function(eps2){
   #contraintes
   ui <- cbind(c(1,-1,0,0,0,0),c(0,0,1,-1,0,0),c(0,0,0,0,1,-1))
   ci <- c(0.001, -1, 0, -3, 0, -0.99)
-  return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL))} #opti sous contraintes linéaires
+  return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL)$par)} #opti sous contraintes linéaires
+
+#---------------------paramètres initiaux------------
+#omega_0 <- 0.01
+#alpha_0 <- 0.12
+#beta_0 <- 0.82
+#theta_0 = c(omega_0,alpha_0,beta_0)
+#eps2_0 = 0 
+#sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
 #-----------------boxplots---------------------------
 
@@ -66,21 +66,21 @@ QML <-function(eps2){
 
 
 #----------------normalité asymptotique----------------------
-n = 10**4
-res = matrix(0,100,3)
-for(i in 1:100){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))$par}
-res = as.data.frame(res)
-colnames(res) = c("omega","alpha","beta")
-res$omega = sqrt(n)*(res$omega-omega_0)
-res$alpha = sqrt(n)*(res$alpha-alpha_0)
-res$beta = sqrt(n)*(res$beta-beta_0)
-plot.new() 
-hist(res$beta, breaks = 15, col = "steelblue", frame = FALSE)
+#n = 10**4
+#res = matrix(0,100,3)
+#for(i in 1:100){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))$par}
+#res = as.data.frame(res)
+#colnames(res) = c("omega","alpha","beta")
+#res$omega = sqrt(n)*(res$omega-omega_0)
+#res$alpha = sqrt(n)*(res$alpha-alpha_0)
+#res$beta = sqrt(n)*(res$beta-beta_0)
+#plot.new() 
+#hist(res$beta, breaks = 15, col = "steelblue", frame = FALSE)
 
-install.packages("pracma")
-library(pracma)
+#install.packages("pracma")
+#library(pracma)
 
-s_estim= sd(res$beta)
+#s_estim= sd(res$beta)
 
-par(new = T)
-plot(dnorm(linspace(-5, 5, n = 100),mean=0,sd=s_estim))
+#par(new = T)
+#plot(dnorm(linspace(-5, 5, n = 100),mean=0,sd=s_estim))

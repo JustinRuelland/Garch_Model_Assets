@@ -6,7 +6,7 @@ transform_csv <- function(data){
   
   data = mutate(data, rendement = log(data$Prix/lag(data$Prix)))
   data = mutate(data, rendement2 = rendement**2)
-  return(data)
+  return(data[-1,])
 }
 
 plot_series_temp <-function(data){
