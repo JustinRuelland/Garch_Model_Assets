@@ -44,27 +44,31 @@ QML <-function(eps2){
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL)$par)} #opti sous contraintes linéaires
 
 #---------------------paramètres initiaux------------
-#omega_0 <- 0.0001
-#alpha_0 <- 0.12
-#beta_0 <- 0.8
-#theta_0 = c(omega_0,alpha_0,beta_0)
-#eps2_0 = 0 
-#sigma2_0 = omega_0/(1-alpha_0-beta_0)
+omega_0 <- 0.01
+alpha_0 <- 0.12
+beta_0 <- 0.83
+theta_0 = c(omega_0,alpha_0,beta_0)
+eps2_0 = 0 
+sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
 
 #-----------------boxplots---------------------------
 
 #res = matrix(0,100,3)
-#for(i in 1:100){res[i,]=QML(simu_eps2(10**3,eps2_0,sigma2_0,theta_0))$par}
+#for(i in 1:100){res[i,]=QML(simu_eps2(10**3,eps2_0,sigma2_0,theta_0))}
 #res = as.data.frame(res)
 #colnames(res) = c("omega","alpha","beta")
 #res$omega = res$omega-omega_0
 #res$alpha = res$alpha-alpha_0
 #res$beta = res$beta-beta_0
-#boxplot(res$omega)
-#boxplot(res$alpha)
-#boxplot(res$beta)
+#res_for_plot = matrix(0, ncol=2, nrow=300, byrow=FALSE)
+#colnames(res_for_plot) = c("value","param")
+#res_for_plot$value = c(res$omega,res$alpha,res$beta)
+#res_for_plot$param = c(rep("omega",100),rep("alpha",100),rep("beta",100))
 
+#library(ggplot2)
+#p <- ggplot(as.data.frame(res_for_plot),aes(x=param, y=value)) + geom_boxplot()
+#p
 
 #----------------normalité asymptotique----------------------
 #n = 10**4
