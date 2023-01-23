@@ -268,3 +268,54 @@ colnames(matrice_test) <- c("Val","Parametre")
 
 p <- ggplot(data = matrice_test, mapping=aes(x=Parametre, y=Val, color=Parametre)) + geom_boxplot() + ggtitle("Estimation des parametres pour loi normale")
 p
+
+J_final <- matrix(0, nrow = 3, ncol=3)
+K <- 0
+for(i in 1:taille_z){
+  serie_test <- serie_rendement(eta = echant_eta_square_1000[[i]], sigma_init = sigma_sq_0[i], omega = omega_0, alpha = alpha_0, beta = beta_0)
+  eta_serie <- echant_eta_square_1000[[i]]
+  A <- matrix(nrow = 3)
+  A[1] <- 1/(1-beta_0)
+  
+  somme <- 0
+  for(i in 1:length(serie_test)){
+    somme = somme + (beta_0^(i-1))*serie_test[length(serie_test)+1-i]
+  }
+  
+  A[2] <- somme
+  
+  somme_2 <- -omega_0/(1-beta_0)**2
+  somme_2_bis <- 0
+  for(i in 1:length(serie_test)){
+    somme_2_bis = somme_2_bis + (beta_0**(i))*serie_test[length(serie_test)+1-i]*(i-1)
+  }
+  
+  somme_2 <- somme_2 + (alpha_0/(beta_0**2))*somme_2_bis
+  
+  A[3] <- somme_2
+  
+  J <- A %*% t(A) 
+  
+  sigma_2 <- serie_test[length(serie_test)]/eta_serie[length(eta_serie)]
+  print(sigma_2)
+  J <- ((1/sigma_2)**2)*J 
+  
+  J_final <- J + J_final
+  
+  K <- K + eta_serie[length(eta_serie)]**2
+  
+}
+J_final <- J_final/taille_z
+
+
+Var_asymp <- solve(J_final)*(K-1)
+
+RMSE_omega <- sqrt((1/100)*sum(omega**2))
+
+RMSE_alpha <- sqrt((1/100)*sum(alpha**2))
+
+RMSE_beta <- sqrt((1/100)*sum(beta**2))
+
+cat("omega : ",RMSE_omega, Var_asymp[1,1], '\n')
+cat("alpha : ", RMSE_alpha, Var_asymp[2,2], '\n')
+cat("beta : ", RMSE_beta, Var_asymp[3,3], '\n')
