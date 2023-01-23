@@ -44,12 +44,13 @@ QML <-function(eps2){
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL)$par)} #opti sous contraintes linéaires
 
 #---------------------paramètres initiaux------------
-#omega_0 <- 0.01
+#omega_0 <- 0.0001
 #alpha_0 <- 0.12
-#beta_0 <- 0.82
+#beta_0 <- 0.8
 #theta_0 = c(omega_0,alpha_0,beta_0)
 #eps2_0 = 0 
 #sigma2_0 = omega_0/(1-alpha_0-beta_0)
+
 
 #-----------------boxplots---------------------------
 
