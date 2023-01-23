@@ -1,4 +1,3 @@
-library(dplyr)
 
 #-----------------Backtests--------------------
 
@@ -18,16 +17,6 @@ func_backtest <- function(eps2,q_inf,q_sup,cut){
 
   #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95) (REVOIR Binomiale)
   obs = c(outside,inside) #effectifs observés
-  print(obs)
   proba = c(0.05,0.95) #probabilités théoriques
   return(chisq.test(obs,p=proba)$p.value)}
   
-#---------------récupération des données------------------
-data = read.csv("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/GOOG.csv")
-source(file = "C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets/data_preparation.R",local= TRUE)
-data <- transform_csv(data)
-plot(data$rendement2)
-eps2 = as.vector(data$rendement2/sd(data$rendement2)) #normalisation (REVOIR)
-
-func_backtest(eps2,-1.96,1.96,1000) #loi normale 5%
-func_backtest(eps2,sqrt(8/6)*qt(0.025,8),qt(0.975,8)*sqrt(8/6),200) #student(8) 5%
