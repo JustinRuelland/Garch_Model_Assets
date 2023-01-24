@@ -1,5 +1,7 @@
 library(ggplot2)
 library(signal)
+install.packages("dplyr")
+library(dplyr)
 #---------------------- Condition de stationnarité -------------------------------
 ### But : Représentations des (alpha,beta) vérifiant la condition de stationnarité
 
@@ -38,25 +40,21 @@ condition_stationnarite <- function(loi_eta){
   
 }
 
-superposition_3graphiques<-function(df1,df2,df3){
-  Graph_condi_satio = ggplot(data = df1)+
-    geom_line(aes(x = a,y = y))+
-    xlab("Alpha") + 
-    ylab("Beta") + 
-    geom_line(data = df2,aes(x=a,y=y))+
-    geom_line(data = df3,aes(x=a,y=y))
+superposition_3graphiques_condi_statio<-function(df1,df2,df3){
+  df = bind_rows("Loi normale" = df1, "Uniforme normalisée" = df2, "Student (8DDL) normalisée" = df3, .id = "Loi_des_eta")
   
-  plot(Graph_condi_satio)
+  Graph_condi_satio = ggplot(df) + 
+    geom_line(aes(x=a,y=y,color = Loi_des_eta)) +
+    xlab("Alpha") +
+    ylab ("Bêta")
+  Graph_condi_satio
   
+  ggsave("Condition de stationnarité.png", width = 8, height = 6)
 }
 
-# Test de la fonction
-#condition_stationnarite(rnorm)
-runif_normalisee <-function(n){return(runif(n,-sqrt(3),sqrt(3)))}
-rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))}
 
-superposition_3graphiques(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
-ggsave("Condition de stricte stationnarité",path="./Graphiques_pour_Latex")
+
+superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
 
 
 
