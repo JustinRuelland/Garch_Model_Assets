@@ -13,11 +13,11 @@ library(lubridate)
 
 
 #---------------Import et transformation des données--------------
-#setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
+setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
 
 source(file = "./data_preparation.R",local= TRUE)
 
-data = read.csv("./^GDAXI.csv") #fichier csv de Yahoo finance
+data = read.csv("./CAC40_15_19.csv") #fichier csv de Yahoo finance
 
 data <- transform_csv(data)
 
@@ -107,7 +107,6 @@ var_asymp <- function(eps2){
     return(new_grad)}
   
   theta_estim = QML(eps2)
-  print(theta_estim)
   grad = c(1/(1-theta_estim[2]-theta_estim[3]),(theta_estim[1]/(1-theta_estim[2]-theta_estim[3]))**2,(theta_estim[1]/(1-theta_estim[2]-theta_estim[3]))**2)
   #grad = c(0.1,0.1,0.1)
   n = length(eps2)
@@ -124,9 +123,9 @@ var_asymp <- function(eps2){
   var_asymp = (K-1)*solve(J)
   return(var_asymp)}
 
-n = 10**4
+n = 10**3
 eps2_sim =simu_eps2(n,eps2_0,sigma2_0,theta_0)
-var_asymp(eps2_sim)
+var_estim = var_asymp(eps2_sim)
 
 res = matrix(0,100,3)
 for(i in 1:100){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))}
@@ -135,17 +134,14 @@ colnames(res) = c("omega","alpha","beta")
 res$omega = res$omega-omega_0
 res$alpha = res$alpha-alpha_0
 res$beta = res$beta-beta_0
-var(sqrt(n)*res$omega)
-var(sqrt(n)*res$alpha)
-var(sqrt(n)*res$beta)
-mat = 
+print(var_estim)
+print(c(var(sqrt(n)*res$omega),var(sqrt(n)*res$alpha),var(sqrt(n)*res$beta)))
+
 #-----------------------backtest----------------------
 source(file= "./prevision.R",local=TRUE)
-data = read.csv("./^GDAXI.csv")
-data <- transform_csv(data)
 plot(data$rendement2,type='l')
 vect_temp <-data$rendement2[!is.na(data$rendement2)]
 eps2 = as.vector(vect_temp/sd(vect_temp)) #normalisation (REVOIR)
 
-func_backtest(eps2,-1.96,1.96,3000) #loi normale 5%
-func_backtest(eps2,sqrt(8/6)*qt(0.025,8),qt(0.975,8)*sqrt(8/6),3000) #student(8) 5%
+func_backtest(eps2,-1.96,1.96,700) #loi normale 5%
+#func_backtest(eps2,sqrt(8/6)*qt(0.025,8),qt(0.975,8)*sqrt(8/6),700) #student(8) 5%
