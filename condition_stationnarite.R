@@ -1,6 +1,5 @@
 library(ggplot2)
 library(signal)
-install.packages("dplyr")
 library(dplyr)
 #---------------------- Condition de stationnarité -------------------------------
 ### But : Représentations des (alpha,beta) vérifiant la condition de stationnarité
@@ -47,14 +46,15 @@ superposition_3graphiques_condi_statio<-function(df1,df2,df3){
     geom_line(aes(x=a,y=y,color = Loi_des_eta)) +
     xlab("Alpha") +
     ylab ("Bêta")
-  Graph_condi_satio
   
-  ggsave("Condition de stationnarité.png", width = 8, height = 6)
+  plot(Graph_condi_satio)
+  ggsave("Condition de stationnarité.png", width = 10, height = 5,path="./Graphiques_pour_Latex/")
 }
 
 
+# Exemple d'utilisation de la deuxième fonction (qui repose sur la première)
 
-superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
+# superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
 
 
 
