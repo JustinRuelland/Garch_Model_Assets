@@ -17,7 +17,7 @@ library(lubridate)
 
 source(file = "./data_preparation.R",local= TRUE)
 
-data = read.csv("./^GDAXI.csv") #mettre le fichier de votre choix (provenant de Yahoo finance)
+data = read.csv("./^GDAXI.csv") #fichier csv de Yahoo finance
 
 data <- transform_csv(data)
 
@@ -29,14 +29,12 @@ autocorrelations(data)
 #--------------- Conditions de stationnarité ---------------------
 source(file= "./condition_stationnarite.R",local=TRUE)
 
-condition_stationnarite(rnorm)
-
+# Définition des lois normalisées pour les eta qu'on veut tester
 runif_normalisee <-function(n){return(runif(n,-sqrt(3),sqrt(3)))}
-condition_stationnarite(runif_normalisee)
-
 rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))} # Loi de Student à 8 degrés de liberté
-condition_stationnarite(rt_8_normalisee)
 
+# Affichage et sauvergarde (dans le dossier "Graphiques_pour_Latex") du graphique qui contient les courbes de condition de stationnarité pour les 3 lois spécifiées
+superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
 
 
 #----------------------------QML----------------------------------------
