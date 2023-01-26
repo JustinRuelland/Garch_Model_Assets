@@ -9,7 +9,7 @@ func_sigma2 <- function(t,sigma2_init,eta2,theta){
 
 #simulation d'une suite de n epsilon**2 à partir des sigmas**2 aussi simulés
 simu_eps2 <- function(n,eps2_init,sigma2_init,theta){
-  eta2 = rnorm(n,mean=0,sd=1)**2 #eta
+  eta2 = rnorm(n,mean=0,sd=1)**2 #eta2
   sigmas2 = c(sigma2_init)
   for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2[i-1] + theta[3])*sigmas2[i-1]} #sigma
   eps2 = eta2*sigmas2 #epsilon
@@ -36,9 +36,14 @@ QML <-function(eps2){
     #on retire les 20 premières données (négligeables cf notes)
     return(sum(log(sigmas2_QML[25:n])+(eps2[25:n]/sigmas2_QML[25:n]))) } #log vraisemblance
   
-  theta_init = c(0.01,0.1,0.8) #valeur initiale
+  theta_init = c(0.0001,0.12,0.8) #valeur initiale
   
   #contraintes
   ui <- cbind(c(1,-1,0,0,0,0),c(0,0,1,-1,0,0),c(0,0,0,0,1,-1))
-  ci <- c(0.001, -1, 0, -3, 0, -0.99)
+  ci <- c(10**(-9), -1, 0, -3, 0, -0.99)
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL)$par)} #opti sous contraintes linéaires
+
+
+
+
+
