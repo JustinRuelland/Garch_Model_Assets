@@ -38,10 +38,10 @@ superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_
 
 
 #----------------------------QML----------------------------------------
-source(file= "./QML_Mael.R",local=TRUE)
+source(file= "./QML_Variance.R",local=TRUE)
 
 #paramètres initiaux
-omega_0 <- 0.01
+omega_0 <- 0.1
 alpha_0 <- 0.12
 beta_0 <- 0.83
 theta_0 = c(omega_0,alpha_0,beta_0)
@@ -68,10 +68,17 @@ p
 p = ggplot(as.data.frame(res_for_plot), aes(x=param, y=value, fill=param)) + geom_violin(trim=FALSE)
 p
 
+#QML sur le CAC40 en 2015/2016
+eps2_cac = data$rendement2[1:500]
+plot(eps2_cac,type='l')
+QML(eps2_cac)
+
+#tests d'invariance de alpha et beta
+QML(1000*eps2_cac)
 
 
 #----------------normalité asymptotique----------------------
-#EN COURS, sera complété avec la matrice J
+#A reprendre, très vite fait
 
 #n = 10**4
 #res = matrix(0,100,3)
@@ -95,47 +102,29 @@ p
 
 
 #---------------matrice de variance asymptotique-------------
+omega_0 <- 10**(-3)
+alpha_0 <- 0.12
+beta_0 <- 0.83
+theta_0 = c(omega_0,alpha_0,beta_0)
+eps2_0 = 0 
+sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
-var_asymp <- function(eps2){
-  
-  #matrice J
-  iter_grad <- function(grad,theta,eps2_t,sigma2_t){
-    new_grad = c()
-    new_grad[1] = 1 + theta[3]*grad[1]
-    new_grad[2] = eps2_t + theta[3]*grad[2]
-    new_grad[3] = sigma2_t + theta[3]*grad[3]
-    return(new_grad)}
-  
-  theta_estim = QML(eps2)
-  grad = c(1/(1-theta_estim[2]-theta_estim[3]),(theta_estim[1]/(1-theta_estim[2]-theta_estim[3]))**2,(theta_estim[1]/(1-theta_estim[2]-theta_estim[3]))**2)
-  #grad = c(0.1,0.1,0.1)
-  n = length(eps2)
-  sigma2_estim = simu_sigma2(eps2,theta_estim)
-  J = (1/sigma2_estim[1]**2)*(grad%*%t(grad))/n
-  for(i in 2:n){
-    grad = iter_grad(grad,theta_estim,eps2[i-1],sigma2_estim[i-1])
-    J = J + (1/sigma2_estim[i]**2)*(grad%*%t(grad))/n  }
-  
-  #coeff K
-  eta4_estim = (eps2/sigma2_estim)**2
-  K = mean(eta4_estim)
-  
-  var_asymp = (K-1)*solve(J)
-  return(var_asymp)}
-
+#estimation de la matrice de variance asymptotique (via le Th ergodique)
 n = 10**3
 eps2_sim =simu_eps2(n,eps2_0,sigma2_0,theta_0)
 var_estim = var_asymp(eps2_sim)
 
-res = matrix(0,100,3)
-for(i in 1:100){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))}
+#estimation des coefficients diagonaux 
+#avec la variance empirique de sqrt(n)*(theta_hat-theta_0)
+N = 100
+res = matrix(0,N,3)
+for(i in 1:N){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))}
 res = as.data.frame(res)
 colnames(res) = c("omega","alpha","beta")
-res$omega = res$omega-omega_0
-res$alpha = res$alpha-alpha_0
-res$beta = res$beta-beta_0
-print(var_estim)
-print(c(var(sqrt(n)*res$omega),var(sqrt(n)*res$alpha),var(sqrt(n)*res$beta)))
+
+#comparaison
+c(sqrt(var_estim[1,1]),sqrt(var_estim[2,2]),sqrt(var_estim[3,3]))/sqrt(n)
+c(sd(res$omega),sd(res$alpha),sd(res$beta))
 
 #-----------------------backtest----------------------
 source(file= "./prevision.R",local=TRUE)
