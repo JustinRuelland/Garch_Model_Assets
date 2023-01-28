@@ -6,7 +6,7 @@ library(ggplot2)
 
 ###----- Reconstitution des prix à partir des rendements ----------
 # On normalise le premier prix à 1
-courbe_prix_w_rendements <- function(rendements){
+courbe_prix_arg_rendements <- function(rendements){
   n = length(rendements)
   prix = c(1) # le premier prix
   for(i in 1:n){
@@ -23,10 +23,9 @@ courbe_prix_w_rendements <- function(rendements){
 
 ###------------------------------------------
 # Simulation de n carrés de rendement pour un GARCH(1,1) de paramètres theta et 
-# avec un rendement au carré initial
+# avec un sigma carré initial
 
-simulation_epsilon <- function(n,theta, loi_eta =rnorm, sigma_init = sqrt(theta[1]/(1-theta[2]-theta[3]))){
-  
+simulation_rendements <- function(n,theta, loi_eta =rnorm, sigma_init = sqrt(theta[1]/(1-theta[2]-theta[3]))){
   etas = rnorm(n)
   etas2 = etas**2
   sigmas2 = c(sigma_init**2)
@@ -42,8 +41,8 @@ simulation_epsilon <- function(n,theta, loi_eta =rnorm, sigma_init = sqrt(theta[
 
 # Exempe d'utilisation des deux premières fonctions
 theta = c(0.0001,0.05,0.87)
-df = simulation_epsilon(1000,theta)
-courbe_prix_w_rendements(df)
+df = simulation_rendements(1000,theta)
+courbe_prix_arg_rendements(df)
 
 
 
