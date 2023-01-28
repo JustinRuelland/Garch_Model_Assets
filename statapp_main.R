@@ -50,7 +50,7 @@ sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
 #boxplots et violons
 res = matrix(0,100,3)
-for(i in 1:100){res[i,]=QML(simu_eps2(10**3,eps2_0,sigma2_0,theta_0))}
+for(i in 1:100){res[i,]=QML(simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2)}
 res = as.data.frame(res)
 colnames(res) = c("omega","alpha","beta")
 res$omega = res$omega-omega_0
@@ -63,7 +63,6 @@ res_for_plot$param = c(rep("omega",100),rep("alpha",100),rep("beta",100))
 
 p <- ggplot(as.data.frame(res_for_plot),aes(x=param, y=value)) + geom_boxplot()
 p
-
 
 p = ggplot(as.data.frame(res_for_plot), aes(x=param, y=value, fill=param)) + geom_violin(trim=FALSE)
 p
@@ -102,7 +101,7 @@ QML(1000*eps2_cac)
 
 
 #---------------matrice de variance asymptotique-------------
-omega_0 <- 10**(-3)
+omega_0 <- 0.01
 alpha_0 <- 0.12
 beta_0 <- 0.83
 theta_0 = c(omega_0,alpha_0,beta_0)
@@ -111,14 +110,13 @@ sigma2_0 = omega_0/(1-alpha_0-beta_0)
 
 #estimation de la matrice de variance asymptotique (via le Th ergodique)
 n = 10**3
-eps2_sim =simu_eps2(n,eps2_0,sigma2_0,theta_0)
+eps2_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)**2
 var_estim = var_asymp(eps2_sim)
 
-#estimation des coefficients diagonaux 
-#avec la variance empirique de sqrt(n)*(theta_hat-theta_0)
+#estimation des coefficients diagonaux avec le RMSE
 N = 100
 res = matrix(0,N,3)
-for(i in 1:N){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))}
+for(i in 1:N){res[i,]=QML(simu_eps(n,eps2_0,sigma2_0,theta_0)**2)}
 res = as.data.frame(res)
 colnames(res) = c("omega","alpha","beta")
 
@@ -126,11 +124,24 @@ colnames(res) = c("omega","alpha","beta")
 c(sqrt(var_estim[1,1]),sqrt(var_estim[2,2]),sqrt(var_estim[3,3]))/sqrt(n)
 c(sd(res$omega),sd(res$alpha),sd(res$beta))
 
+
+#matrice de variance asymptotique sur le cac40
+eps2_cac = data$rendement2[1:500]
+var_asymp(eps2_cac)
+
+
+
 #-----------------------backtest----------------------
 source(file= "./prevision.R",local=TRUE)
-plot(data$rendement2,type='l')
-vect_temp <-data$rendement2[!is.na(data$rendement2)]
-eps2 = as.vector(vect_temp/sd(vect_temp)) #normalisation (REVOIR)
 
-func_backtest(eps2,-1.96,1.96,700) #loi normale 5%
-#func_backtest(eps2,sqrt(8/6)*qt(0.025,8),qt(0.975,8)*sqrt(8/6),700) #student(8) 5%
+#backtest sur une série simulée
+theta_0 = c(10**(-4),0.12,0.83)
+eps2_0 = 0 
+sigma2_0 = omega_0/(1-alpha_0-beta_0)
+n = 3*10**3
+eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
+func_backtest(eps_sim,-1.96,1.96,2000)
+
+#backtest sur le cac40
+eps_cac = data$rendement
+func_backtest(eps_cac,-1.96,1.96,700) #loi normale 5%
