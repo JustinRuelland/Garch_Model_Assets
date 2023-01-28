@@ -13,7 +13,7 @@ library(lubridate)
 
 
 #---------------Import et transformation des données--------------
-setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
+#setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
 
 source(file = "./data_preparation.R",local= TRUE)
 
@@ -133,15 +133,32 @@ var_asymp(eps2_cac)
 
 #-----------------------backtest----------------------
 source(file= "./prevision.R",local=TRUE)
+source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
 
-#backtest sur une série simulée
+#série simulée
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
-sigma2_0 = omega_0/(1-alpha_0-beta_0)
+sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
 n = 3*10**3
 eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-func_backtest(eps_sim,-1.96,1.96,2000)
+res = func_backtest(eps_sim,-1.96,1.96,2000)
+print(res$p.value)
 
-#backtest sur le cac40
+x = c(1:1000)
+plot(x, eps_sim[2001:length(eps_sim)], type = "l")
+lines(x, eps_sim[2001:length(eps_sim)], col = "blue")
+lines(x, res$upper.bounds, col = "red")
+lines(x, res$lower.bounds, col = "red")
+
+
+#cac40
 eps_cac = data$rendement
-func_backtest(eps_cac,-1.96,1.96,700) #loi normale 5%
+res_cac = func_backtest(eps_cac,-1.96,1.96,700) #loi normale 5%
+print(res_cac$p.value)
+
+x = c(1:321)
+plot(x, eps_cac[701:length(eps_cac)], type = "l")
+lines(x, eps_cac[701:length(eps_cac)], col = "blue")
+lines(x, res_cac$upper.bounds, col = "red")
+lines(x, res_cac$lower.bounds, col = "red")
+
