@@ -12,4 +12,5 @@
 - Fichier **simulation_series.R** :
   - *courbe_prix_arg_rendements* : à partir d'un dataframe de rendements, affiche la courbe des prix (avec le prix en t=0 normalisé à 1)
   - *simulation_rendements* : à partir d'un nombre n de simulations, d'un paramètre theta, d'une loi des éta (par défaut, rnorm) et d'un sigma carré initial (par défaut,  $\omega=\frac{1}{1-\alpha-\beta}$), simule n carrés de rendement pour un GARCH(1,1) et renvoie sous forme de liste
-
+  - *simulation_rendements_avec_changement_GARCH* : à partir d'un nombre n de simulations, de deux paramatères theta d'une loi des éta (par défaut, rnorm) et d'un sigma carré initial (par défaut, $\omega=\frac{1}{1-\alpha-\beta}$ avec les valeurs du premier theta), renvoie sous forme de liste la simulation d'un GARCH(1,1) avec changement de paramètre au milieu
+  - *simulation_GARCH22* : à partir d'un THETA ($(\omega,\alpha_1,\alpha_2,\beta_1,\beta_2)$), de n, d'une loi des éta (par défaut, rnorm), et d'un sigma caré initial (par défaut, $\omega=\frac{1}{1-\alpha_1-\alpha_2-\beta_1-\beta_2}), renvoie une liste d'une série GARCH(2,2) de n termes
