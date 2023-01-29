@@ -12,13 +12,23 @@ func_backtest <- function(eps,q_inf,q_sup,cut){
   
   #tests intervalle de confiance
   cut = cut+1
-  vect_test = eps[cut:n]/sigma[cut:n]
-  test_sigma = sigma[cut:n]
-  outside = length(vect_test[(vect_test>q_sup)|(vect_test<q_inf)])
+  eps_test = eps[cut:n]
+  sigma_test = sigma[cut:n]
+  
+  upper = q_sup*sigma_test
+  lower = q_inf*sigma_test
+  outside = length(eps_test[(eps_test>upper)|(eps_test<lower)])
   inside = n - cut + 1 -outside
 
   #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95) (REVOIR Binomiale)
   obs = c(outside,inside) #effectifs observés
   proba = c(0.05,0.95) #probabilités théoriques
-  return(chisq.test(obs,p=proba)$p.value)}
   
+  p = chisq.test(obs,p=proba)$p.value
+  res = matrix(0,ncol=3)
+  colnames(res) = c("p.value","upper.bounds","lower.bounds")
+  res$p.value = p
+  res$upper.bounds = upper
+  res$lower.bounds = lower
+
+  return(res)}

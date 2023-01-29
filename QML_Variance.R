@@ -7,7 +7,7 @@ func_sigma2 <- function(t,sigma2_init,eta2,theta){
     res<-theta[1] + (theta[2]*eta2[t-1] + theta[3])*func_sigma2(t-1,sigma2_init,theta)}
   return(res)}
 
-#simulation d'une suite de n epsilon**2 à partir des sigmas**2 aussi simulés
+#simulation d'une suite de n epsilon à partir des sigma aussi simulés
 simu_eps <- function(n,eps2_init,sigma2_init,theta){
   
   eta = rnorm(n,mean=0,sd=1)
