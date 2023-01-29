@@ -129,6 +129,11 @@ c(sd(res$omega),sd(res$alpha),sd(res$beta))
 eps2_cac = data$rendement2[1:500]
 var_asymp(eps2_cac)
 
+#--------------- Puissance du test --------------------
+# Pas le calcul de la puissance du test, 
+# mais vérification pour des cas précis que le test rejette bien 
+# source(file="./simulation_series.R")
+
 
 
 #-----------------------backtest----------------------

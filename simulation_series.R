@@ -22,7 +22,7 @@ courbe_prix_arg_rendements <- function(rendements){
 }
 
 
-###------------------------------------------
+###------------------- Simulation GARCH(1,1) -----------------------
 # Simulation de n carrés de rendement pour un GARCH(1,1) de paramètres theta et 
 # avec un sigma carré initial
 
@@ -40,13 +40,13 @@ simulation_rendements <- function(n,theta, loi_eta =rnorm, sigma_init = sqrt(the
   return(epsilons)
 }
 
-### EXEMPLE d'utilisation des deux premières fonctions
-theta = c(0.0001,0.05,0.87)
-df = simulation_rendements(1000,theta)
-courbe_prix_arg_rendements(df)
+## EXEMPLE d'utilisation des deux premières fonctions
+# theta = c(0.0001,0.05,0.87)
+# df = simulation_rendements(1000,theta)
+# courbe_prix_arg_rendements(df)
 
 
-###---------------- Changement de GARCH ------------------------
+###---------------- Changement de GARCH(1,1) ------------------------
 simulation_rendements_avec_changement_GARCH <- function(n,theta_1,theta_2,loi_eta = rnorm, sigma_init = sqrt(theta_1[1]/(1-theta_1[2]-theta_1[3]))){
   # Rq : je ne fais pas appel deux fois à la fonction simulation_rendements,
   # car j'ai besoin du dernier sigma2
@@ -71,11 +71,11 @@ simulation_rendements_avec_changement_GARCH <- function(n,theta_1,theta_2,loi_et
 return(epsilons)
 }
 
-# EXEMPLE (avec theta du précéd)
-theta1 = c(0.0001,0.05,0.87)
-theta2=c(0.001,0.05,0.87)
-rendements = simulation_rendements_avec_changement_GARCH(10000,theta1,theta2)
-courbe_prix_arg_rendements(rendements)
+## EXEMPLE (avec theta du précis)
+# theta1 = c(0.0001,0.05,0.87)
+# theta2=c(0.001,0.05,0.87)
+# rendements = simulation_rendements_avec_changement_GARCH(10000,theta1,theta2)
+# courbe_prix_arg_rendements(rendements)
 
 
 ###--------------------- GARCH(2,2) --------------------------
@@ -95,12 +95,12 @@ simulation_GARCH22 <- function(n,THETA,loi_eta = rnorm, sigma_init=sqrt(THETA[1]
   return(epsilons)
 }
 
-# Exemple
-THETA = c(0.0001, 0.05,0.001,0.8,0.1)
-
-df_garch22 = simulation_GARCH22(10000,THETA)
-df_garch22_pourggplot = as.data.frame(cbind(Indice = 1:10000,df_garch22))
-
-g = ggplot(df_garch22_pourggplot)+geom_line(aes(x = Indice,y = df_garch22))
-g
-courbe_prix_arg_rendements(df_garch22)
+## EXEMPLE
+# THETA = c(0.0001, 0.05,0.001,0.8,0.1)
+# 
+# df_garch22 = simulation_GARCH22(10000,THETA)
+# df_garch22_pourggplot = as.data.frame(cbind(Indice = 1:10000,df_garch22))
+# 
+# g = ggplot(df_garch22_pourggplot)+geom_line(aes(x = Indice,y = df_garch22))
+# g
+# courbe_prix_arg_rendements(df_garch22)
