@@ -21,5 +21,5 @@
   - *QML*: fonction pour estimer par QML les paramètres $\hat{\theta}$ du modèle à partir d'observations de $\epsilon^{2}$.
   - *var_asymp*: fonction pour estimer la matrice de variance asymptotique de la suite $\sqrt{n}(\hat{\theta}-\theta_{0})$, $\theta_{0}$ étant le vrai paramètre.
 
--Fichier **prevision.R**:
-  -*func_backtest*: d'abord cette fonction divise les données en deux parties en fonction d'un paramètre *cut*. Le modèle est estimé sur la première partie et un intervalle de confiance est construit pour chaque donnée de la second partie. La fonction renvoie les bornes des intervalles de confiance. De plus théoriquement, $\alpha$% des valeurs doivent être hors des intervalles de confiance, ceci est testé avec un test du khi2, la p-valeur du test est aussi renvoyée. $\alpha$ et les quantiles de la loi choisie pour modéliser $\eta$ sont laissés en paramètre.
+- Fichier **prevision.R**:
+  - *func_backtest*: d'abord cette fonction divise les données en deux parties en fonction d'un paramètre *cut*. Le modèle est estimé sur la première partie et un intervalle de confiance est construit pour chaque donnée de la second partie. La fonction renvoie les bornes des intervalles de confiance. De plus théoriquement, $\alpha$% des valeurs doivent être hors des intervalles de confiance, ceci est testé avec un test du khi2, la p-valeur du test est aussi renvoyée. $\alpha$ et les quantiles de la loi choisie pour modéliser $\eta$ sont laissés en paramètre.
