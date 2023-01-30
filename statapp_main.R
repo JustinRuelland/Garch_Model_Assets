@@ -137,8 +137,11 @@ var_asymp(eps2_cac)
 
 
 #-----------------------backtest----------------------
+
 source(file= "./prevision.R",local=TRUE)
 source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
+
+#a) rendements
 
 #série simulée
 theta_0 = c(10**(-4),0.12,0.83)
@@ -167,3 +170,30 @@ lines(x, eps_cac[701:length(eps_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
 lines(x, res_cac$lower.bounds, col = "red")
 
+
+
+#b) carré des rendements
+
+#série simulée
+theta_0 = c(10**(-4),0.12,0.83)
+eps2_0 = 0 
+sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
+n = 3*10**3
+eps2_sim = simu_eps(n,eps2_0,sigma2_0,theta_0)**2
+res = prevision_square(eps2_sim,2000)
+print(res$p.value)
+
+x = c(1:1000)
+plot(x, eps2_sim[2001:length(eps2_sim)], type = "l")
+lines(x, eps2_sim[2001:length(eps2_sim)], col = "blue")
+lines(x, res$upper.bounds, col = "red")  
+
+#cac40
+eps2_cac = data$rendement2
+res_cac = prevision_square(eps2_cac,700) 
+print(res_cac$p.value)
+
+x = c(1:321)
+plot(x, eps2_cac[701:length(eps2_cac)], type = "l")
+lines(x, eps2_cac[701:length(eps2_cac)], col = "blue")
+lines(x, res_cac$upper.bounds, col = "red")
