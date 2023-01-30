@@ -149,7 +149,7 @@ eps2_0 = 0
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
 n = 3*10**3
 eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-res = func_backtest(eps_sim,-1.96,1.96,2000)
+res = func_backtest(eps_sim,-1.96,1.96,2000,empirical=FALSE)
 print(res$p.value)
 
 x = c(1:1000)
@@ -161,14 +161,18 @@ lines(x, res$lower.bounds, col = "red")
 
 #cac40
 eps_cac = data$rendement
-res_cac = func_backtest(eps_cac,-1.96,1.96,700) #loi normale 5%
+res_cac = func_backtest(eps_cac,-1.96,1.96,600,empirical=FALSE) #loi normale 5%
+res_cac_emp = func_backtest(eps_cac,-1.96,1.96,600,empirical=TRUE)
 print(res_cac$p.value)
+print(res_cac_emp$p.value)
 
-x = c(1:321)
-plot(x, eps_cac[701:length(eps_cac)], type = "l")
-lines(x, eps_cac[701:length(eps_cac)], col = "blue")
+x = c(1:421)
+plot(x, eps_cac[601:length(eps_cac)], type = "l")
+lines(x, eps_cac[601:length(eps_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
 lines(x, res_cac$lower.bounds, col = "red")
+lines(x, res_cac_emp$upper.bounds, col = "green")
+lines(x, res_cac_emp$lower.bounds, col = "green")
 
 
 
