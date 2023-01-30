@@ -17,7 +17,7 @@
 
 - Fichier **QML_Variance.R**:
   - *simu_eps*: fonction pour simuler une suite de rendements (notés $\epsilon$ dans les notes et *eps* dans le code) à partir de la formule du modèle Garch. La longueur de la suite, les paramètres du Garch et les valeurs initiales sont laissés en paramètre.
-  - *simu_sigma2*: fonction pour simuler la volalité (notes: $\sgima^{2}$, code: *sigma2*) à partir des rendements au carré ($\epsilon^{2}$, *eps2*) observés et d'un paramètre $\theta$. En pratique, on aura seulement les rendements au carré et on évaluera par QML un $\hat{\theta}$ pour ensuite simuler des $\hat{\sigma^{2}}$.
+  - *simu_sigma2*: fonction pour simuler la volalité (notes: $\sigma^{2}$, code: *sigma2*) à partir des rendements au carré ( $\epsilon^{2}$, *eps2*) observés et d'un paramètre $\theta$. En pratique, on aura seulement les rendements au carré et on évaluera par QML un $\hat{\theta}$ pour ensuite simuler des $\hat{\sigma^{2}}$.
   - *QML*: fonction pour estimer par QML les paramètres $\hat{\theta}$ du modèle à partir d'observations de $\epsilon^{2}$.
   - *var_asymp*: fonction pour estimer la matrice de variance asymptotique de la suite $\sqrt{n}(\hat{\theta}-\theta_{0})$, $\theta_{0}$ étant le vrai paramètre.
 
