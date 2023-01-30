@@ -1,6 +1,6 @@
 #-----------------Backtests--------------------
 
-func_backtest <- function(eps,q_inf,q_sup,cut){
+func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
   
   n = length(eps)
   eps2 = eps**2
@@ -9,18 +9,25 @@ func_backtest <- function(eps,q_inf,q_sup,cut){
   theta = QML(eps2[c(1:cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
   sigma2 = simu_sigma2(eps2,theta) #estimation des sigma2 à partir des epsilon2 passés
   sigma = sqrt(sigma2)
+  eta_quantile = eps[1:cut]/sigma[1:cut]
   
   #tests intervalle de confiance
   cut = cut+1
   eps_test = eps[cut:n]
   sigma_test = sigma[cut:n]
   
-  upper = q_sup*sigma_test
-  lower = q_inf*sigma_test
+  
+  
+  if(empirical==FALSE){
+    upper = q_sup*sigma_test
+    lower = q_inf*sigma_test}
+  else {upper = quantile(x=eta_quantile,prob=0.975)*sigma_test
+  lower = quantile(x=eta_quantile,prob=0.025)*sigma_test}
+  
   outside = length(eps_test[(eps_test>upper)|(eps_test<lower)])
   inside = n - cut + 1 -outside
 
-  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95) (REVOIR Binomiale)
+  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
   obs = c(outside,inside) #effectifs observés
   proba = c(0.05,0.95) #probabilités théoriques
   
@@ -46,7 +53,7 @@ prevision_square <-function(eps2,cut){
   outside = length(eps2_test[(eps2_test>upper)])
   inside = n - cut + 1 -outside
   
-  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95) (REVOIR Binomiale)
+  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
   obs = c(outside,inside) #effectifs observés
   proba = c(0.05,0.95) #probabilités théoriques
   
