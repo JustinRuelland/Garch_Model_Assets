@@ -16,7 +16,10 @@
   - *simulation_GARCH22* : à partir d'un nombre n de simulations, d'un THETA ( $=(\omega,\alpha_1,\alpha_2,\beta_1,\beta_2)$ , d'une loi des éta (par défaut, rnorm), et d'un sigma caré initial (par défaut, $\omega=\frac{1}{1-\alpha_1-\alpha_2-\beta_1-\beta_2}$ ), renvoie une liste d'une série GARCH(2,2) de n termes
 
 - Fichier **QML_Variance.R**:
-  - *simu_eps*: fonction pour simuler une suite de rendements (notés epsilon) à partir de la forume du modèle Garch. La longueur de la suite, les paramètres du Garch et les valeurs initiales sont laissées en paramètre.
-  - *simu_sigma2*: fonction pour simuler la volalité sigma2 à partir des rendements au carré (*eps2*) observés et d'un paramètre theta. En pratique, on aura seulement les rendements au carré et on évaluera par QML un $\hat{\theta}$ pour ensuite simuler des $\hat{\sigma^{2}}$.
-  - *QML*: fonction pour estimer par QML les paramètres *theta_hat* du modèle à partir d'observations *eps2*.
-  - *var_asymp*: fonction pour estimer la matrice de variance asymptotique de la suite $\sqrt{n}(\hat{\theta}-\theta_{0}$, $\theta_{0}$ étant le vrai paramètre.
+  - *simu_eps*: fonction pour simuler une suite de rendements (notés $\epsilon$ dans les notes et *eps* dans le code) à partir de la formule du modèle Garch. La longueur de la suite, les paramètres du Garch et les valeurs initiales sont laissés en paramètre.
+  - *simu_sigma2*: fonction pour simuler la volalité (notes: $\sgima^{2}$, code: *sigma2*) à partir des rendements au carré ($\epsilon^{2}$, *eps2*) observés et d'un paramètre $\theta$. En pratique, on aura seulement les rendements au carré et on évaluera par QML un $\hat{\theta}$ pour ensuite simuler des $\hat{\sigma^{2}}$.
+  - *QML*: fonction pour estimer par QML les paramètres $\hat{\theta}$ du modèle à partir d'observations de $\epsilon^{2}$.
+  - *var_asymp*: fonction pour estimer la matrice de variance asymptotique de la suite $\sqrt{n}(\hat{\theta}-\theta_{0})$, $\theta_{0}$ étant le vrai paramètre.
+
+-Fichier **prevision.R**:
+  -*func_backtest*: d'abord cette fonction divise les données en deux parties en fonction d'un paramètre *cut*. Le modèle est estimé sur la première partie et un intervalle de confiance est construit pour chaque donnée de la second partie. La fonction renvoie les bornes des intervalles de confiance. De plus théoriquement, $\alpha$% des valeurs doivent être hors des intervalles de confiance, ceci est testé avec un test du khi2, la p-valeur du test est aussi renvoyée. $\alpha$ et les quantiles de la loi choisie pour modéliser $\eta$ sont laissés en paramètre.
