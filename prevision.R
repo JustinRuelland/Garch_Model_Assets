@@ -17,7 +17,6 @@ func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
   sigma_test = sigma[cut:n]
   
   
-  
   if(empirical==FALSE){
     upper = q_sup*sigma_test
     lower = q_inf*sigma_test}
