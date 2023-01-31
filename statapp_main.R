@@ -13,7 +13,7 @@ library(lubridate)
 
 
 #---------------Import et transformation des données--------------
-#setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
+setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
 
 source(file = "./data_preparation.R",local= TRUE)
 
@@ -101,7 +101,7 @@ QML(1000*eps2_cac)
 
 
 #---------------matrice de variance asymptotique-------------
-omega_0 <- 0.01
+omega_0 <- 0.001
 alpha_0 <- 0.12
 beta_0 <- 0.83
 theta_0 = c(omega_0,alpha_0,beta_0)
@@ -147,14 +147,14 @@ source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
-n = 3*10**3
+n = 10**4
 eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-res = func_backtest(eps_sim,-1.96,1.96,2000,empirical=FALSE)
+res = func_backtest(eps_sim,-1.96,1.96,6000,empirical=FALSE)
 print(res$p.value)
 
-x = c(1:1000)
-plot(x, eps_sim[2001:length(eps_sim)], type = "l")
-lines(x, eps_sim[2001:length(eps_sim)], col = "blue")
+x = c(1:4000)
+plot(x, eps_sim[6001:length(eps_sim)], type = "l")
+lines(x, eps_sim[6001:length(eps_sim)], col = "blue")
 lines(x, res$upper.bounds, col = "red")
 lines(x, res$lower.bounds, col = "red")
 
@@ -201,3 +201,41 @@ x = c(1:321)
 plot(x, eps2_cac[701:length(eps2_cac)], type = "l")
 lines(x, eps2_cac[701:length(eps2_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
+
+
+
+#c) test de la puissance (changement de la loi des etas)
+
+theta = c(10**(-3),0.12,0.83)
+eps2_0 = 0 
+sigma2_0 = theta[1]/(1-theta[2]-theta[3])
+n = 10**4
+
+#loi de laplace
+rlaplace = function(n,a,b){
+  u=runif(n,min=-0.5,max=0.5)
+  x = a-b*sign(u)*log(1-2*abs(u))
+  return(x)}
+
+eta_lap = rlnorm(n,meanlog= 0, sdlog= 1) #loi log-normale
+eta_lap = (eta_lap-mean(eta_lap))/sd(eta_lap)
+print(quantile(eta_lap,probs=c(0.025,0.975)))
+eta2_lap = eta_lap**2
+sigmas2 = c(sigma2_0)
+for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2_lap[i-1] + theta[3])*sigmas2[i-1]} #sigma
+eps2_lap = eta2_lap*sigmas2 
+eps2_lap[0] = eps2_0
+eps_lap = sign(eta_lap)*sqrt(eps2_lap)
+
+#quantiles de la loi normale
+res_lap = func_backtest(eps_lap,-1.96,1.96,6000,empirical=FALSE)
+res_lap_emp = func_backtest(eps_lap,-1.96,1.96,6000,empirical=TRUE)
+print(res_lap$p.value)
+print(res_lap_emp$p.value)
+x = c(1:4000)
+plot(x, eps_lap[6001:length(eps_lap)], type = "l")
+lines(x, eps_lap[6001:length(eps_lap)], col = "blue")
+lines(x, res_lap$upper.bounds, col = "red")
+lines(x, res_lap$lower.bounds, col = "red")
+lines(x, res_lap_emp$upper.bounds, col = "green")
+lines(x, res_lap_emp$lower.bounds, col = "green")
