@@ -12,15 +12,15 @@ source(file="./simulation_series.R")
 source(file= "./QML_Variance.R")
 source(file= "./prevision.R",local=TRUE)
 
-# Changement de GARCH
-n = 2000 #nombres de jours
+#--------------------------- Changement de GARCH --------------------------------
+n = 1000 #nombres de jours
 theta1 = c(0.0001,0.12,0.85)
 
 N = 30 #nombre de alphas
 M = 30 #nombre de betas 
 
-a = seq(0.0,1,length.out=N)
-b = seq(0.0,1,length.out=M)
+a = seq(0.0,0.3,length.out=N)
+b = seq(0.6,1,length.out=M)
 couple = cross2(a,b)
 
 
@@ -54,14 +54,14 @@ echelon_pval<-function(pval){
     return(1)
   }
 }
-
-tab_pval_echelon = laply(tab_pval,echelon_pval)
+# A appliquer si on veut connaître que des tranches de p-valeur
+#tab_pval = laply(tab_pval,echelon_pval)
 
 
 ### Affichage
 # Transformation données
-df = as.data.frame(cbind(tab_alpha,tab_beta,tab_pval_echelon))
+df = as.data.frame(cbind(tab_alpha,tab_beta,tab_pval))
 
 
-p = ggplot(data = df,aes(x = tab_alpha,y=tab_beta,weight=tab_pval_echelon))+geom_bin2d( )
+p = ggplot(data = df,aes(x = tab_alpha,y=tab_beta,weight=tab_pval))+geom_bin2d( )
 p
