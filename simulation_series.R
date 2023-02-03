@@ -51,7 +51,7 @@ simulation_rendements_avec_changement_GARCH <- function(n,theta_1,theta_2,loi_et
   # Rq : je ne fais pas appel deux fois à la fonction simulation_rendements,
   # car j'ai besoin du dernier sigma2
   
-  n_changement = n%/%2 ## Changement de GARCH à la moitié
+  n_changement = floor(0.8*n) ## Date de changement de GARCH à la moitié
   
   etas = loi_eta(n)
   etas2 = etas**2
