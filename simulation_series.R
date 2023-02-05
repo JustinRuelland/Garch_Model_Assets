@@ -47,11 +47,11 @@ simulation_rendements <- function(n,theta, loi_eta =rnorm, sigma_init = sqrt(the
 
 
 ###---------------- Changement de GARCH(1,1) ------------------------
-simulation_rendements_avec_changement_GARCH <- function(n,theta_1,theta_2,loi_eta = rnorm, sigma_init = sqrt(theta_1[1]/(1-theta_1[2]-theta_1[3]))){
+simulation_rendements_avec_changement_GARCH <- function(n,theta_1,theta_2, cut = 0.5, loi_eta = rnorm, sigma_init = sqrt(theta_1[1]/(1-theta_1[2]-theta_1[3]))){
   # Rq : je ne fais pas appel deux fois à la fonction simulation_rendements,
   # car j'ai besoin du dernier sigma2
   
-  n_changement = floor(0.8*n) ## Date de changement de GARCH à la moitié
+  n_changement = floor(cut*n)
   
   etas = loi_eta(n)
   etas2 = etas**2
