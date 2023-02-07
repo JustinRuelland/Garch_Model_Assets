@@ -25,9 +25,15 @@ simu_eps <- function(n,eps2_init,sigma2_init,theta){
 #simulation des sigmas**2 à partir des epsilon**2 connus
 simu_sigma2 <- function(eps2,theta){
   n = length(eps2)
-  sigmas2 = c(mean(eps2))
+  
+  sigmas2 = double(n) #création d'un vecteur de taille qui ne va pas varier par la suite
+  sigmas2[1] = c(mean(eps2))
+  
   for(i in 2:n){sigmas2[i]=theta[1]+theta[2]*eps2[i-1]+theta[3]*sigmas2[i-1]}
-  return(sigmas2)}
+  
+  return(sigmas2)
+}
+
 
 #---------------------- Methode du quasi-maximum de vraisemblance ----------
 
