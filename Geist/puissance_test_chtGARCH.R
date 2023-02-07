@@ -27,8 +27,8 @@ n_path = 10 #nombres de trajectoires simulées pour chaque carré
 
 theta1 = c(0.0001,0.12,0.85)
 
-N = 30 #nombre de alphas
-M = 30 #nombre de betas 
+N = 10 #nombre de alphas
+M = 10 #nombre de betas 
 
 a = seq(0.0,1,length.out=N)
 b = seq(0.0,1,length.out=M)
