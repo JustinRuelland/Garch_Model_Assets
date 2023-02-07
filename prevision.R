@@ -39,7 +39,7 @@ func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
   return(res)}
 
 #hypothèse: les etas suivent une loi normale
-prevision_square <-function(eps2,cut){
+backtest_square <-function(eps2,cut){
   
   n = length(eps2)
   theta = QML(eps2[c(1:cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
@@ -62,3 +62,85 @@ prevision_square <-function(eps2,cut){
   res$upper.bounds = upper
   
   return(res)}
+
+#------------horizon 2, estimation par noyau--------------------
+simu_rejet <- function(ker){
+  
+  func <-function(x){return((1/sqrt(2*pi))*exp(-0.5*x**2))}
+  M  = max(ker$y/func(ker$x))
+  
+  #pour rentrer dans la boucle
+  U = 1
+  V = 1
+  Z = 0
+  ind = 1
+  cpt = 0
+  
+  while(U*M*func(V)>Z*ker$y[ind]){
+    cpt = cpt +1
+    Z = 1
+    U = runif(1,0,1)
+    V = rnorm(1,0,1)
+    if(cpt%%2==0){ind = c(which(ker$x>V))[1]}
+    else{ind = c(which(ker$x<V))[length(c(which(ker$x<V)))]}
+    }
+  
+  return(V)}
+
+ker =  density(rnorm(10**4,0,1))
+c = c()
+for(i in 1:10**3){c[i]=simu_rejet(ker)}
+hist(c,breaks=80,prob=TRUE)
+mean(c)
+
+
+pred_h2_kernel <- function(eps,cut,nb_sim){
+  
+  n = length(eps)
+  
+  theta_hat = QML(eps[1:cut]**2)
+  w  = theta_hat[1]
+  a = theta_hat[2]
+  b = theta_hat[3]
+  
+  sigma2 = simu_sigma2(eps**2, theta_hat)
+  sigma = sqrt(sigma2)
+  eta = eps[1:cut]/sigma[1:cut]
+  
+  ker = density(eta)
+
+  
+  cut = cut + 1
+  bounds_inf = c()
+  bounds_sup = c()
+  
+  for(i in cut:n){
+    
+    pred_h2 = c() 
+    
+    for(j in 1:nb_sim){
+      eta2_h1 = simu_rejet(ker)
+      eta2_h2 = simu_rejet(ker)
+      pred_h2[j] = eta2_h2*(w + (a*eta2_h2+b)*(w + a*eps[i-2]**2 + b*sigma2[i-2]))
+      
+    bounds_inf[i] = quantile(x=pred_h2, probs=0.025)
+    bounds_sup[i] = quantile(x=pred_h2, probs=0.975) }   }
+  
+  return(c(bounds_inf,bounds_sup))}
+
+setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
+source(file= "./QML_Variance.R",local=TRUE)
+
+
+omega_0 <- 0.001
+alpha_0 <- 0.12
+beta_0 <- 0.83
+theta_0 = c(omega_0,alpha_0,beta_0)
+eps2_0 = 0 
+sigma2_0 = omega_0/(1-alpha_0-beta_0)
+n = 10**4
+eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
+pred_h2_kernel(eps_sim,8000,50)
+
+
+
