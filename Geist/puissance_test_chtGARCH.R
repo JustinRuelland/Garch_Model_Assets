@@ -28,11 +28,11 @@ n_path = 10 #nombres de trajectoires simulées pour chaque carré
 
 theta1 = c(0.0001,0.12,0.85)
 
-N = 10 #nombre de alphas
-M = 10 #nombre de betas 
+N = 30 #nombre de alphas
+M = 30 #nombre de betas 
 
-a = seq(0.0,1,length.out=N)
-b = seq(0.0,1,length.out=M)
+a = seq(0.0,0.4,length.out=N)
+b = seq(0.7,1,length.out=M)
 couple = cross2(a,b)
 
 
