@@ -16,15 +16,12 @@ library(lubridate)
 setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
 
 source(file = "./data_preparation.R",local= TRUE)
-
 data = read.csv("./CAC40_15_19.csv") #fichier csv de Yahoo finance
-
 data <- transform_csv(data)
 
 #Premiers graphiques - statistiques descriptives
 plot_series_temp(data)
 autocorrelations(data)
-
 
 #--------------- Conditions de stationnarité ---------------------
 source(file= "./condition_stationnarite.R",local=TRUE)
@@ -76,30 +73,6 @@ QML(eps2_cac)
 QML(1000*eps2_cac)
 
 
-#----------------normalité asymptotique----------------------
-#A reprendre, très vite fait
-
-#n = 10**4
-#res = matrix(0,100,3)
-#for(i in 1:100){res[i,]=QML(simu_eps2(n,eps2_0,sigma2_0,theta_0))$par}
-#res = as.data.frame(res)
-#colnames(res) = c("omega","alpha","beta")
-#res$omega = sqrt(n)*(res$omega-omega_0)
-#res$alpha = sqrt(n)*(res$alpha-alpha_0)
-#res$beta = sqrt(n)*(res$beta-beta_0)
-#plot.new() 
-#hist(res$beta, breaks = 15, col = "steelblue", frame = FALSE)
-
-#install.packages("pracma")
-#library(pracma)
-
-
-#s_estim= sd(res$beta)
-
-#par(new = T)
-#plot(dnorm(linspace(-5, 5, n = 100),mean=0,sd=s_estim))
-
-
 #---------------matrice de variance asymptotique-------------
 omega_0 <- 0.001
 alpha_0 <- 0.12
@@ -129,6 +102,35 @@ c(sd(res$omega),sd(res$alpha),sd(res$beta))
 eps2_cac = data$rendement2[1:500]
 var_asymp(eps2_cac)
 
+#----------------normalité asymptotique----------------------
+
+n = 10**3
+res = matrix(0,n,3)
+V = matrix(0,3,3)
+for(i in 1:n){
+  eps2 = simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2
+  res[i,]=QML(eps2)}
+res = as.data.frame(res)
+colnames(res) = c("omega","alpha","beta")
+res$omega = sqrt(n)*(res$omega-omega_0)
+res$alpha = sqrt(n)*(res$alpha-alpha_0)
+res$beta = sqrt(n)*(res$beta-beta_0)
+
+for(i in 1:100){V = V + var_asymp(simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2)/100}
+
+a = min(res$alpha)
+b = max(res$alpha)
+xx = seq(from = a, to = b, by = (b-a)/50)
+sd_hat = sqrt(V[2,2])
+y = c()
+for(i in 1:length(xx)){y[i]=dnorm(xx[i],mean=0,sd=sd_hat)}
+
+y_hat = hist(res$alpha, breaks = xx, col = "steelblue")$density
+plot(xx[2:51],y_hat,col="red",type='o')
+lines(xx,y)
+
+ks.test(res$alpha,"pnorm",mean=0, sd=sd_hat)
+
 #--------------- Puissance du test --------------------
 # Pas le calcul de la puissance du test, 
 # mais vérification pour des cas précis que le test rejette bien 
@@ -143,32 +145,41 @@ source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
 
 #a) rendements
 
-#série simulée
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
 n = 10**4
-eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-res = func_backtest(eps_sim,-1.96,1.96,6000,empirical=FALSE)
-print(res$p.value)
 
-x = c(1:4000)
-plot(x, eps_sim[6001:length(eps_sim)], type = "l")
-lines(x, eps_sim[6001:length(eps_sim)], col = "blue")
+#série simulée, graphique avec les IC
+eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
+res = func_backtest(eps_sim,-1.96,1.96,8000,empirical=FALSE)
+x = c(1:2000)
+plot(x, eps_sim[8001:length(eps_sim)], type = "l")
+lines(x, eps_sim[8001:length(eps_sim)], col = "blue")
 lines(x, res$upper.bounds, col = "red")
 lines(x, res$lower.bounds, col = "red")
+
+#estimation, un peu long à executer
+distrib = c()
+for(i in 1:1000){
+  eps_sim = simu_eps(10**3,eps2_0,sigma2_0,theta_0)
+  res = func_backtest(eps_sim,-1.96,1.96,800,empirical=FALSE)
+  distrib[i] = res$p.value}
+
+print(length(distrib[distrib<0.05])/length(distrib))
+
 
 
 #cac40
 eps_cac = data$rendement
-res_cac = func_backtest(eps_cac,-1.96,1.96,600,empirical=FALSE) #loi normale 5%
-res_cac_emp = func_backtest(eps_cac,-1.96,1.96,600,empirical=TRUE)
+res_cac = func_backtest(eps_cac,-1.96,1.96,800,empirical=FALSE) #loi normale 5%
+res_cac_emp = func_backtest(eps_cac,-1.96,1.96,800,empirical=TRUE)
 print(res_cac$p.value)
 print(res_cac_emp$p.value)
 
-x = c(1:421)
-plot(x, eps_cac[601:length(eps_cac)], type = "l")
-lines(x, eps_cac[601:length(eps_cac)], col = "blue")
+x = c(1:221)
+plot(x, eps_cac[801:length(eps_cac)], type = "l")
+lines(x, eps_cac[801:length(eps_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
 lines(x, res_cac$lower.bounds, col = "red")
 lines(x, res_cac_emp$upper.bounds, col = "green")
@@ -182,19 +193,27 @@ lines(x, res_cac_emp$lower.bounds, col = "green")
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
-n = 3*10**3
-eps2_sim = simu_eps(n,eps2_0,sigma2_0,theta_0)**2
-res = prevision_square(eps2_sim,2000)
-print(res$p.value)
 
-x = c(1:1000)
-plot(x, eps2_sim[2001:length(eps2_sim)], type = "l")
-lines(x, eps2_sim[2001:length(eps2_sim)], col = "blue")
+eps2_sim = simu_eps(2000,eps2_0,sigma2_0,theta_0)**2
+res = backtest_square(eps2_sim,1500)
+x = c(1:500)
+plot(x, eps2_sim[1501:length(eps2_sim)], type = "l")
+lines(x, eps2_sim[1501:length(eps2_sim)], col = "blue")
 lines(x, res$upper.bounds, col = "red")  
+
+
+#estimation
+distrib = c()
+for(i in 1:1000){
+  eps2_sim = simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2
+  res = backtest_square(eps2_sim,800)
+  distrib[i] = res$p.value}
+
+print(length(distrib[distrib<0.05])/length(distrib))
 
 #cac40
 eps2_cac = data$rendement2
-res_cac = prevision_square(eps2_cac,700) 
+res_cac = backtest_square(eps2_cac,700) 
 print(res_cac$p.value)
 
 x = c(1:321)
@@ -209,33 +228,46 @@ lines(x, res_cac$upper.bounds, col = "red")
 theta = c(10**(-3),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta[1]/(1-theta[2]-theta[3])
-n = 10**4
+n = 10**3
 
-#loi de laplace
-rlaplace = function(n,a,b){
-  u=runif(n,min=-0.5,max=0.5)
-  x = a-b*sign(u)*log(1-2*abs(u))
-  return(x)}
+cpt = 0
+cpt_emp = 0
+for(i in 1:100){
+  eta_lap = runif(n,min= -1, max= 1) #loi uniforme
+  eta_lap = (eta_lap-mean(eta_lap))/sd(eta_lap)
+  eta2_lap = eta_lap**2
+  sigmas2 = c(sigma2_0)
+  for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2_lap[i-1] + theta[3])*sigmas2[i-1]} #sigma
+  eps2_lap = eta2_lap*sigmas2 
+  eps2_lap[0] = eps2_0
+  eps_lap = sign(eta_lap)*sqrt(eps2_lap)
 
-eta_lap = rlnorm(n,meanlog= 0, sdlog= 1) #loi log-normale
-eta_lap = (eta_lap-mean(eta_lap))/sd(eta_lap)
-print(quantile(eta_lap,probs=c(0.025,0.975)))
-eta2_lap = eta_lap**2
-sigmas2 = c(sigma2_0)
-for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2_lap[i-1] + theta[3])*sigmas2[i-1]} #sigma
-eps2_lap = eta2_lap*sigmas2 
-eps2_lap[0] = eps2_0
-eps_lap = sign(eta_lap)*sqrt(eps2_lap)
+  #quantiles de la loi normale
+  res_lap = func_backtest(eps_lap,-1.96,1.96,800,empirical=FALSE)
+  res_lap_emp = func_backtest(eps_lap,-1.96,1.96,800,empirical=TRUE)
+  if(res_lap$p.value<0.05){cpt=cpt+1}
+  if(res_lap_emp$p.value<0.05){cpt_emp=cpt_emp+1} }
+  
+print(c(cpt,cpt_emp)/100)
 
-#quantiles de la loi normale
-res_lap = func_backtest(eps_lap,-1.96,1.96,6000,empirical=FALSE)
-res_lap_emp = func_backtest(eps_lap,-1.96,1.96,6000,empirical=TRUE)
-print(res_lap$p.value)
-print(res_lap_emp$p.value)
-x = c(1:4000)
-plot(x, eps_lap[6001:length(eps_lap)], type = "l")
-lines(x, eps_lap[6001:length(eps_lap)], col = "blue")
+#plot de la dernière simulation pour illustrer
+x = c(1:200)
+plot(x, eps_lap[801:length(eps_lap)], type = "l")
+lines(x, eps_lap[801:length(eps_lap)], col = "blue")
 lines(x, res_lap$upper.bounds, col = "red")
 lines(x, res_lap$lower.bounds, col = "red")
 lines(x, res_lap_emp$upper.bounds, col = "green")
 lines(x, res_lap_emp$lower.bounds, col = "green")
+
+
+
+#----------------------Rolling average--------------------------
+
+func <-function(x){return(exp(-x**2))}
+install.packages('zoo')
+library('zoo')
+rmean <- rollmean(data$rendement[1:200], k = 10)
+x = c(1:200)
+plot(x,data$rendement[1:200],type='l',col='blue')
+lines(x[1:191],rmean, col='red')
+
