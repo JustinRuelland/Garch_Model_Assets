@@ -1,6 +1,7 @@
 ###--------------- Puissance du test --------------------
 # Pas le calcul de la puissance du test, 
 # mais vérification pour des cas précis que le test rejette bien
+rm(list=ls())
 
 library("dplyr")
 library("purrr")
@@ -20,7 +21,7 @@ source(file= "./prevision.R",local=TRUE)
 Rprof()
 
 
-#--------------------------- Changement de GARCH --------------------------------
+#--------------------------- Changement de GARCH ------------------------------
 niveau_test = 0.05
 n = 1000 #nombres de jours
 n_path = 10 #nombres de trajectoires simulées pour chaque carré
@@ -54,7 +55,7 @@ for(i in 1:long){
 tab_pval = laply(couple,test_for_alphabeta)
 
 tab_res_test = rep(0,N*M)
-for(j in 1:n_traj){
+for(j in 1:n_path){
   tab_pval = laply(couple,test_for_alphabeta)
   
   # Syntaxe pour associer la valeur 1 si la pvaleur est supérieure au niveau, 0 sinon
@@ -64,7 +65,7 @@ for(j in 1:n_traj){
   tab_res_test = tab_res_test+tab_pval
 }
 
-tab_res_test = tab_res_test /n_traj #pour obtenir moyenne
+tab_res_test = tab_res_test /n_path #pour obtenir moyenne
 
 
 ### Affichage
