@@ -8,7 +8,6 @@ library("purrr")
 library("plyr")
 library("ggplot2")
 
-setwd("C:/Users/louis/Garch_Model_Assets")
 source(file="./simulation_series.R")
 source(file= "./QML_Variance.R")
 source(file= "./prevision.R",local=TRUE)
@@ -38,7 +37,7 @@ couple = cross2(a,b)
 
 test_for_alphabeta <- function(alpha_beta){
   rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,c(alpha_beta))),0.8)
-  p_val = func_backtest(rendements,-1.96,1.96,8*n%/%10,FALSE)$p.value #8*n%/%10 : le cut est à 80% des données
+  p_val = func_backtest(rendements,-1.96,1.96,4*n%/%10,FALSE)$p.value #8*n%/%10 : le cut est à 80% des données
   return(p_val)
 }
 
