@@ -128,19 +128,19 @@ pred_h2_kernel <- function(eps,cut,nb_sim){
   
   return(c(bounds_inf,bounds_sup))}
 
-setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
-source(file= "./QML_Variance.R",local=TRUE)
+#setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
+#source(file= "./QML_Variance.R",local=TRUE)
 
 
-omega_0 <- 0.001
-alpha_0 <- 0.12
-beta_0 <- 0.83
-theta_0 = c(omega_0,alpha_0,beta_0)
-eps2_0 = 0 
-sigma2_0 = omega_0/(1-alpha_0-beta_0)
-n = 10**4
-eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-pred_h2_kernel(eps_sim,8000,50)
+#omega_0 <- 0.001
+#alpha_0 <- 0.12
+#beta_0 <- 0.83
+#theta_0 = c(omega_0,alpha_0,beta_0)
+#eps2_0 = 0 
+#sigma2_0 = omega_0/(1-alpha_0-beta_0)
+#n = 10**4
+#eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
+#pred_h2_kernel(eps_sim,8000,50)
 
 
 
