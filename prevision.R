@@ -87,11 +87,11 @@ simu_rejet <- function(ker){
   
   return(V)}
 
-ker =  density(rnorm(10**4,0,1))
-c = c()
-for(i in 1:10**3){c[i]=simu_rejet(ker)}
-hist(c,breaks=80,prob=TRUE)
-mean(c)
+#ker =  density(rnorm(10**4,0,1))
+#c = c()
+#for(i in 1:10**3){c[i]=simu_rejet(ker)}
+#hist(c,breaks=80,prob=TRUE)
+#mean(c)
 
 
 pred_h2_kernel <- function(eps,cut,nb_sim){
