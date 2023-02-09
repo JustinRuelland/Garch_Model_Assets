@@ -56,5 +56,3 @@ superposition_3graphiques_condi_statio<-function(df1,df2,df3){
 
 # superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
 
-
-
