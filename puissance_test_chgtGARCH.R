@@ -71,12 +71,12 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=25,n=1000){
   
   p = ggplot(data = df,aes(x = tab_alpha,y=tab_beta,weight=tab_res_test))+geom_bin2d( )+geom_point(aes(x=theta1[2], y=theta1[3]), colour="red")
   print(p)
-  ggsave("cb - n_path =XXXX - n=XXXX - cut=XX.png", width = 6, height = 5,path="./Graphiques_pour_Latex/Carte_bleue_(puissance_chgt_GARCH)/")
+  ggsave("cb - n_path =XX - n=XXXX - cut=XX.png", width = 6, height = 5,path="./Graphiques_pour_Latex/Carte_bleue_(puissance_chgt_GARCH)/")
   return(p)
 }
 
 
-puissance_test_chgtGARCH(0.4,10,4000)
+puissance_test_chgtGARCH(0.8,10,1000)
 
 
 # Rprof(NULL)
