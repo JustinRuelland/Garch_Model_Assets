@@ -159,9 +159,79 @@ epsilon_initial <- epsilon[start_day:end_day]
 
 displaying_trajectories(epsilon_initial = epsilon_initial, matrix_simulation = matrix_trajectories, day_displaying = day_displaying)
 
+
+
 # Studying of the trajectories
 
-matrix <- trajectories_bootstrapped()
+matrix_trajectories <- matrix(data=0, nrow=path_simulated, ncol = day_simulated)
+matrix_trajectories <- trajectories_bootstrapped(sigma_init = sigma_init, eps_init = eps_init, etas_estimated = eta_traited, n_path = path_simulated, n_day = day_simulated, theta = theta_hat)
+
+#---Moyenne---
+Mean_along_sim <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+
+#---IC 95%---
+IC_along_sim_up <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+IC_along_sim_down <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+
+for(i in 1:day_simulated){
+  Mean_along_sim[1,i] <- mean(matrix_trajectories[,i])
+  IC_along_sim_up[1,i] <- quantile(matrix_trajectories[,i], probs = 0.975)
+  IC_along_sim_down[1,i] <- quantile(matrix_trajectories[,i], probs = 0.025)
+}
+
+#---IC 95% naif---
+IC_naif_up <- matrix(data = NA, nrow=1, ncol = day_simulated)
+quantile_up <- quantile(epsilon_initial[1:(day_displaying - day_simulated)], probs = 0.975)
+IC_naif_up[1,] <- quantile_up
+
+IC_naif_down <- matrix(data = NA, nrow=1, ncol = day_simulated)
+quantile_down <- quantile(epsilon_initial[1:(day_displaying - day_simulated)], probs = 0.025)
+IC_naif_down[1,] <- quantile_down
+
+# Displaying these indicators
+df_true <- as.data.frame(cbind(as.matrix(epsilon_initial, ncol=1), 1:day_displaying))
+colnames(df_true)[2] <- "Date"
+
+df_mean <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_mean<- cbind(df_mean, Mean_along_sim)
+df_mean <- cbind(t(df_mean), 1:day_displaying)
+df_mean <- as.data.frame(df_mean)
+colnames(df_mean)[2] <- "Date"
+
+df_ic_up <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_up<- cbind(df_ic_up, IC_along_sim_up)
+df_ic_up <- cbind(t(df_ic_up), 1:day_displaying)
+df_ic_up <- as.data.frame(df_ic_up)
+colnames(df_ic_up)[2] <- "Date"
+
+df_ic_down <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_down<- cbind(df_ic_down, IC_along_sim_down)
+df_ic_down <- cbind(t(df_ic_down), 1:day_displaying)
+df_ic_down <- as.data.frame(df_ic_down)
+colnames(df_ic_down)[2] <- "Date"
+
+df_ic_up_naif <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_up_naif<- cbind(df_ic_up_naif, IC_naif_up)
+df_ic_up_naif <- cbind(t(df_ic_up_naif), 1:day_displaying)
+df_ic_up_naif <- as.data.frame(df_ic_up_naif)
+colnames(df_ic_up_naif)[2] <- "Date"
+
+df_ic_down_naif <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_down_naif<- cbind(df_ic_down_naif, IC_naif_down)
+df_ic_down_naif <- cbind(t(df_ic_down_naif), 1:day_displaying)
+df_ic_down_naif <- as.data.frame(df_ic_down_naif)
+colnames(df_ic_down_naif)[2] <- "Date"
+
+p2 <- ggplot(data = df_true) + geom_line(aes(x = Date, y = V1), color="black")
+p2 <- p2 + geom_line(aes(x=df_mean[["Date"]], y=df_mean[["V1"]]), color="blue")
+p2 <- p2 + geom_line(aes(x=df_ic_up[["Date"]], y=df_ic_up[["V1"]]), color="red")
+p2 <- p2 + geom_line(aes(x=df_ic_down[["Date"]], y=df_ic_down[["V1"]]), color="red")
+p2 <- p2 + geom_line(aes(x=df_ic_up_naif[["Date"]], y=df_ic_up_naif[["V1"]]), color="orange")
+p2 <- p2 + geom_line(aes(x=df_ic_down_naif[["Date"]], y=df_ic_down_naif[["V1"]]), color="orange")
+p2 <- p2 + ggtitle("Estimation CAC40 horizon 30 jours par modèle GARCH") + xlab("Date") + ylab("Rendement")
+p2
+
+
 
 
 
