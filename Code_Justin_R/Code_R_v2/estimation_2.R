@@ -1,11 +1,11 @@
 #----------------- Estimation horizon 2 --------------------
-options( "digits"=7, "scipen"=10) 
+options( "digits"=15, "scipen"=10) 
 rm(list=ls())
 library(signal)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
-
+setwd("/Users/justinr/Documents/2A/Stat App/Github/Garch_Model_Assets/Code_Justin_R/Code_R_v2")
 source(file = "../../data_preparation.R",local= TRUE) 
 source(file = "../../QML_Variance.R",local= TRUE)
 
@@ -29,13 +29,144 @@ theta_hat <- QML(epsilon_train**2)
 epsilon_test <- epsilon[(threshold_train+1):n_eps]
 
 # Serie a traiter (à mettre sous forme de fonction et boucle)
-epsilon_traited <- c(epsilon_train, epsilon_test[1:1])
+epsilon_traited <- c(epsilon_train, epsilon_test[1])
 epsilon_square_traited <- epsilon_traited**2
 
 # Obtention des sigmas_square et des eta_square
 sigma_square_traited <- simu_sigma2(epsilon_traited**2, theta_hat)
 sigma_traited <- sqrt(sigma_square_traited)
 eta_traited <- epsilon_traited/sigma_traited
+
+# Fonctions d'obtention des etas
+bootstrap_etas <- function(etas, n){
+  return(sample(x = etas, size = n, replace = TRUE))
+}
+
+
+# Simulation des bras inconnus
+trajectory <- function(sigma_init, eps_init, etas, theta){
+  n <- length(etas)
+  eps <- 1:n
+
+  sigma_square <- theta[1] + theta[2]*(eps_init**2) + theta[3]*(sigma_init**2)
+  
+  for(i in 1:n){
+    eps[i] <- sqrt(sigma_square)*etas[i]
+    
+    # Computation of the sigma_square_{i+1}
+    sigma_square <- theta[1] + theta[2]*(eps[i]**2) + theta[3]*(sigma_square)
+  }
+  
+  return(eps)
+}
+
+trajectories_bootstrapped <- function(sigma_init, eps_init, etas_estimated, n_path, n_day, theta){
+  matrix_simulation <- matrix(data = 0, nrow = n_path, ncol = n_day)
+  for(i in 1:n_path){
+    etas <- bootstrap_etas(etas_estimated, n_day)
+    
+    eps <- 1:n_day
+    sigma_square <- theta[1] + theta[2]*(eps_init**2) + theta[3]*(sigma_init**2)
+    
+    for(j in 1:n_day){
+      eps[j] <- sqrt(sigma_square)*etas[j]
+  
+      sigma_square <- theta[1] + theta[2]*(eps[j]**2) + theta[3]*(sigma_square)
+    }
+    
+    matrix_simulation[i,] <- eps
+  }
+  return(matrix_simulation)
+}
+
+# Display of the trajectories
+
+day_simulated <- 30
+day_displaying <- 100 # take into account the simulated days
+path_simulated <- 300
+
+sigma_init <- sigma_traited[length(sigma_traited)]
+eps_init <- epsilon_traited[length(epsilon_traited)]
+
+matrix_trajectories <- matrix(data=0, nrow=path_simulated, ncol = day_simulated)
+matrix_trajectories <- trajectories_bootstrapped(sigma_init = sigma_init, eps_init = eps_init, etas_estimated = eta_traited, n_path = path_simulated, n_day = day_simulated, theta = theta_hat)
+
+displaying_trajectories <- function(epsilon_initial, matrix_simulation, day_displaying){
+  start <- day_displaying - length(matrix_simulation[1,]) + 1
+  matrix_displaying <- matrix(data = NA, nrow=path_simulated, ncol = (day_displaying - day_simulated))
+  matrix_displaying[,(start-1)] <- rep(epsilon_initial[(start-1)], length(matrix_simulation[,1]))
+  matrix_displaying <- cbind(matrix_displaying, matrix_simulation)
+  matrix_displaying <- cbind(t(matrix_displaying), 1:day_displaying)
+  
+  df <- as.data.frame(matrix_displaying)
+  n_path <- length(matrix_simulation[,1])
+  colnames(df)[n_path+1] <- "Index"
+  
+  df_true <- as.data.frame(cbind(as.matrix(epsilon_initial, ncol=1), 1:day_displaying))
+  colnames(df_true)[2] <- "Date"
+  
+  rainbow_p <- rainbow(n_path, s=.6, v=.9)[sample(1:n_path, n_path)]
+  p <- ggplot(data = df_true)
+  p <- p + geom_line(aes(x = Date, y = V1), color="black")
+  for(i in 1:n_path){
+    col <- paste("V", as.character(i), sep = "")
+    p <- p + geom_line(aes_(x=df[["Index"]], y=df[[col]]), color=rainbow_p[i])
+  }
+  p <- p + geom_line(aes_(x = df_true[["Date"]], y = df_true[["V1"]]), color="black")
+  p
+}
+
+#OOOF
+matrix_simulation = matrix_trajectories
+start <- day_displaying - length(matrix_simulation[1,]) + 1
+matrix_displaying <- matrix(data = NA, nrow=path_simulated, ncol = (day_displaying - day_simulated))
+matrix_displaying[,(start-1)] <- rep(epsilon_initial[(start-1)], length(matrix_simulation[,1]))
+matrix_displaying <- cbind(matrix_displaying, matrix_simulation)
+matrix_displaying <- cbind(t(matrix_displaying), 1:day_displaying)
+
+df <- as.data.frame(matrix_displaying)
+n_path <- length(matrix_simulation[,1])
+colnames(df)[n_path+1] <- "Index"
+
+df_true <- as.data.frame(cbind(as.matrix(epsilon_initial, ncol=1), 1:day_displaying))
+colnames(df_true)[2] <- "Date"
+
+rainbow_p <- rainbow(n_path, s=.6, v=.9)[sample(1:n_path, n_path)]
+p <- ggplot(data = df_true)
+p <- p + geom_line(aes(x = Date, y = V1), color="black")
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V1"]]), color=rainbow_p[1])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V2"]]), color=rainbow_p[2])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V3"]]), color=rainbow_p[3])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V4"]]), color=rainbow_p[4])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V5"]]), color=rainbow_p[5])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V6"]]), color=rainbow_p[6])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V7"]]), color=rainbow_p[7])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V8"]]), color=rainbow_p[8])
+#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V9"]]), color=rainbow_p[9])
+#m <- p + geom_line(aes(x=df[["Index"]], y=df[["V1"]]), color=rainbow_p[1])
+for(i in 1:n_path){
+  col <- paste("V", as.character(i), sep = "")
+  p <- p + geom_line(aes_(x=df[["Index"]], y=df[[col]]), color=rainbow_p[i])
+}
+p <- p + geom_line(aes_(x = df_true[["Date"]], y = df_true[["V1"]]), color="black")
+p
+#OOOF
+
+estimation_day <- threshold_train+1
+end_day <- estimation_day + day_simulated - 1
+start_day <- estimation_day - (day_displaying - day_simulated)
+epsilon_initial <- epsilon[start_day:end_day]
+
+displaying_trajectories(epsilon_initial = epsilon_initial, matrix_simulation = matrix_trajectories, day_displaying = day_displaying)
+
+# Studying of the trajectories
+
+matrix <- trajectories_bootstrapped()
+
+
+
+# Old version of the code
+
 
 n_long <- threshold_train + 1
 
