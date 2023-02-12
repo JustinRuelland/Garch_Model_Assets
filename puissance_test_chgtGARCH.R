@@ -15,7 +15,7 @@ source(file= "./prevision.R",local=TRUE)
 # Rprof()
 
 #--------------------------- Changement de GARCH ------------------------------
-puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=25,n=1000){
+puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
   #n : nombres de jours
   #n_path : nombres de trajectoires simulées pour chaque carré
   
@@ -32,7 +32,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=25,n=1000){
   
   test_for_alphabeta <- function(alpha_beta){
     rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,c(alpha_beta))),cut_chgt)
-    p_val = func_backtest(rendements,-1.96,1.96,8*n%/%10,FALSE)$p.value #8*n%/%10 : le cut est à 80% des données
+    p_val = func_backtest(rendements,-1.96,1.96,6*n%/%10,FALSE)$p.value #8*n%/%10 : le cut est à 80% des données
     return(p_val)
   }
   
@@ -75,8 +75,8 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=25,n=1000){
   return(p)
 }
 
-
-puissance_test_chgtGARCH(0.8,10,1000)
+### Exemple
+puissance_test_chgtGARCH(0.4,25,3000)
 
 
 # Rprof(NULL)
