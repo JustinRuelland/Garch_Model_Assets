@@ -25,7 +25,7 @@
   - *func_backtest*: d'abord cette fonction divise les données en deux parties en fonction d'un paramètre *cut*. Le modèle est estimé sur la première partie et un intervalle de confiance est construit pour chaque donnée de la second partie. La fonction renvoie les bornes des intervalles de confiance. De plus théoriquement, $\alpha$% des valeurs doivent être hors des intervalles de confiance, ceci est testé avec un test du khi2, la p-valeur du test est aussi renvoyée. $\alpha$ et les quantiles de la loi choisie pour modéliser $\eta$ sont laissés en paramètre.
 
 - Fichier **puissance_test_chgtGARCH.R** :
-  - *puissance_test_chgtGARCH* : simule une "carte bleue" (=représentation des zones de rejet de test dans le cadre d'une simulation GARCH(1,1) avec changement de GARCH à un "cut") en fonction de :
+  - *puissance_test_chgtGARCH* : simule(peut prendre facilement 20min quand n_path =25 pex, ou n=2000) une "carte bleue" (=représentation des zones de rejet de test dans le cadre d'une simulation GARCH(1,1) avec changement de GARCH à un "cut") en fonction de :
     - cut_chgt = 0.4 : part du temps simulé sous GARCH(1,1) theta_1
-    - n_path = 25 : nombres de trajectoires simulées pour chaque couple $(\alpha,\beta)$
+    - n_path = 10 : nombres de trajectoires simulées pour chaque couple $(\alpha,\beta)$
     - n = 1000: nombres de jours de simulation
