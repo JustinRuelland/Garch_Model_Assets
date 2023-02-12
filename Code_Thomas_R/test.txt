@@ -4,73 +4,98 @@ library(ggplot2)
 library(dplyr)
 library(pracma)
 
+
+
+#---------------------- Définition des paramètres ------------------------
+
 window = 3
+m = 2
+
+#---------------------- Mise en forme des données ------------------------
 
 data <- read.csv2("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/FTT-USD.csv")
-data <- read.csv2("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/AAPL.csv")
-data1 <- read.csv2("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/GOOG.csv")
+data1 <- read.csv2("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/AAPL.csv")
+data2 <- read.csv2("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/Code_Justin_R/Yahoo_import/GOOG.csv")
 
 data <- data$Date.Open.High.Low.Close.Adj.Close.Volume
 x_quotes <- c()
 for(i in data){
   x_quotes <- c(x_quotes, as.numeric(strsplit(i, ",")[[1]][2]))
 }
+
 epsilon_2 <- log(x_quotes[2:200]/x_quotes[1:199])
 epsilon <- epsilon_2**2
 data = epsilon
+
+#---------------------- Bollinger Bands ------------------------
+
 bb<-function(data, window, m){
   sma = movavg(data, n=window, type='s')[window:length(movavg(data, n=window, type='e'))]
   std = roll_sd(data, window )[window:length(roll_sd(data, window ))]
-  upper_bb = sma + m * 2
-  lower_bb = sma - m * 2
+  
+  upper_bb = sma + std * m
+  lower_bb = sma - std * m
+  
   vecteur1 = data[window:length(roll_sd(data, window ))]
-  vecteur2 = sma
   tableau = data.frame(x = vecteur1, y = upper_bb, z = lower_bb, a = sma) 
   return(tableau)
-  
 }
+
+#---------------------- Bollinger Bands exponentielle ------------------------
 
 bb_exp<-function(data, window, m){
   sma = movavg(data, n=window, type='e')[window:length(movavg(data, n=window, type='e'))]
   std = roll_sd(data, window )[window:length(roll_sd(data, window ))]
-  upper_bb = sma + std * 2
-  lower_bb = sma - std * 2
+  
+  upper_bb = sma + std * m
+  lower_bb = sma - std * m
+  
   vecteur1 = data[window:length(roll_sd(data, window ))]
-  vecteur2 = sma
   tableau = data.frame(x = vecteur1, y = upper_bb, z = lower_bb, a = sma) 
   return(tableau)
-  
 }
 
 
-bb2 = bb(epsilon_2,20, 2)
-bb = bb2
-x  <- c(1:length(bb[,2]))
+bb_data = bb(data,window, m)
+bb_data_exp = bb_exp(data,window, m)
+
+
+
+#---------------------- Affichage graphique ------------------------
+
+x  <- c(1:length(bb_data[,2]))
 
 #plot the first data series using plot()
-plot(x, bb2[,1], type="o", col="blue", pch=".", ylab="y", lty=1)
+plot(x, bb_data[,1], type="o", col="blue", pch=".", ylab="y", lty=1)
 
 
 #add second data series to the same chart using points() and lines()
-points(x, bb2[,2], col="red", pch=".")
-lines(x, bb[,2], col="red",lty=2)
+points(x, bb_data[,2], col="red", pch=".")
+lines(x, bb_data[,2], col="red",lty=2)
 
 #add third data series to the same chart using points() and lines()
-points(x, bb2[,3], col="dark red",pch=".")
-lines(x, bb2[,3], col="dark red", lty=3)
+points(x, bb_data[,3], col="red",pch=".")
+lines(x, bb_data[,3], col="red", lty=3)
 
-points(x, bb2[,4], col="green",pch=".")
-lines(x, bb2[,4], col="green", lty=4)
+points(x, bb_data[,4], col="green",pch=".")
+lines(x, bb_data[,4], col="green", lty=4)
 
-bb_backtest<-function(data, window, m){
-  
-  sma = movavg(data, n=window, type='e')[window:length(movavg(data, n=window, type='e'))]
-  std = roll_sd(data, window )[window:length(roll_sd(data, window ))]
-  upper_bb = sma + std * 2
-  lower_bb = sma - std * 2
-  vecteur1 = data[window:length(roll_sd(data, window ))]
-  vecteur2 = sma
-  tableau = data.frame(x = vecteur1, y = upper_bb, z = lower_bb, a = sma) 
-  return(tableau)
+
+#---------------------- Back Test Bollinger Bands ------------------------
+
+bb_backtest<-function(bb, m){
+  test = data.frame(id=c()) 
+  for(i in 1:length(bb[,1]) ){
+    if (bb[i,1]-bb[i,4]>bb[i,2] | bb[i,1]-bb[i,4]<bb[i,3]) {
+      test=rbind(test,c(0)) 
+    }
+    else {
+      test=rbind(test,c(1)) 
+    }
+  }
+  return(test)
   
 }
+
+backtest = bb_backtest(bb_data, 2)
+
