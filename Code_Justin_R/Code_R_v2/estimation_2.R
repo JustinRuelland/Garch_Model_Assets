@@ -10,7 +10,7 @@ source(file = "../../data_preparation.R",local= TRUE)
 source(file = "../../QML_Variance.R",local= TRUE)
 
 #Import du cac40
-data = read.csv("../../CAC40_15_19.csv")
+data = read.csv("../Yahoo_import/AAPL.csv")
 data <- transform_csv(data)
 plot_series_temp(data)
 
@@ -21,7 +21,7 @@ epsilon <- data$rendement
 
 #Estimation des paramètres du modèle Garch fit sur 80% de la serie
 n_eps <- length(epsilon)
-threshold_train <- floor(0.8*n_eps)
+threshold_train <- floor(0.5*n_eps)
 epsilon_train <- epsilon[1:threshold_train]
 
 theta_hat <- QML(epsilon_train**2)
@@ -81,9 +81,9 @@ trajectories_bootstrapped <- function(sigma_init, eps_init, etas_estimated, n_pa
 
 # Display of the trajectories
 
-day_simulated <- 30
-day_displaying <- 100 # take into account the simulated days
-path_simulated <- 300
+day_simulated <- 500
+day_displaying <- 1000 # take into account the simulated days
+path_simulated <- 3000
 
 sigma_init <- sigma_traited[length(sigma_traited)]
 eps_init <- epsilon_traited[length(epsilon_traited)]
@@ -228,7 +228,7 @@ p2 <- p2 + geom_line(aes(x=df_ic_up[["Date"]], y=df_ic_up[["V1"]]), color="red")
 p2 <- p2 + geom_line(aes(x=df_ic_down[["Date"]], y=df_ic_down[["V1"]]), color="red")
 p2 <- p2 + geom_line(aes(x=df_ic_up_naif[["Date"]], y=df_ic_up_naif[["V1"]]), color="orange")
 p2 <- p2 + geom_line(aes(x=df_ic_down_naif[["Date"]], y=df_ic_down_naif[["V1"]]), color="orange")
-p2 <- p2 + ggtitle("Estimation CAC40 horizon 30 jours par modèle GARCH") + xlab("Date") + ylab("Rendement")
+p2 <- p2 + ggtitle("Estimation APPL horizon 500 jours par modèle GARCH") + xlab("Date") + ylab("Rendement")
 p2
 
 
