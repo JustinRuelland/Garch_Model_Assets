@@ -76,7 +76,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
 }
 
 ### Exemple
-puissance_test_chgtGARCH(0.4,10,1000)
+# puissance_test_chgtGARCH(0.4,10,1000)
 
 
 # Rprof(NULL)

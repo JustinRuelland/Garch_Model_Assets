@@ -11,10 +11,10 @@ library(dplyr)
 library(ggplot2)
 library(lubridate)
 
+# DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
+# et choisir le dossier "\Garch_Model_Assets"
 
 #---------------Import et transformation des données--------------
-setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
-
 source(file = "./data_preparation.R",local= TRUE)
 data = read.csv("./CAC40_15_19.csv") #fichier csv de Yahoo finance
 data <- transform_csv(data)
@@ -223,7 +223,9 @@ lines(x, res_cac$upper.bounds, col = "red")
 
 
 
-#c) test de la puissance (changement de la loi des etas)
+#c) test de la puissance 
+
+# i. changement de la loi des etas
 
 theta = c(10**(-3),0.12,0.83)
 eps2_0 = 0 
@@ -259,6 +261,12 @@ lines(x, res_lap$lower.bounds, col = "red")
 lines(x, res_lap_emp$upper.bounds, col = "green")
 lines(x, res_lap_emp$lower.bounds, col = "green")
 
+
+# ii. Changement des paramètres de GARCH(1,1)
+
+source(file="./puissance_test_chgtGARCH.R")
+
+puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
 
 
 #----------------------Rolling average--------------------------
