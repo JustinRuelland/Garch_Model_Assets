@@ -4,6 +4,7 @@
   - *transform_csv* : fonction pour transformer le csv de Yahoo finance en dataframe avec les rendements et sans les variables qui ne nous intéresse pas
   - *plot_series_temp* : réalise les graphiques des prix, rendements et rendements au carré en fonction du temps
   - *autocorrelations* : graphiques autocorrélations des rendements et rendements au carré
+  - *transform_csv_with_discount*(data,r) : transform_csv mais qui discount les prix au taux quotidient r
 
 - Fichier **condition_stationnarite.R** :
   - *condition_stationnarite* : à partir de la loi des etas (bruit blanc), renvoie un dataframe de couples (alpha,beta) qui indiquent la condition de stationnarité
