@@ -50,7 +50,5 @@ transform_csv_with_discount <- function(data,r){ #similar as transform_csv
   data = mutate(data, rendement2 = rendement**2)
   return(data[-1,])
   
-  
-  
 }
 
