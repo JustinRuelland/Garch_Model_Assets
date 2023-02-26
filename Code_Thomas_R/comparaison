@@ -1,3 +1,6 @@
+
+#---------------------- Installation des packages et librairies ------------------------
+
 install.packages("signal")
 install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
@@ -18,6 +21,9 @@ install.packages("dm.test")
 install.packages('forecast', dependencies = TRUE)
 library('dm.test')
 
+#---------------------- Mise en place des données ------------------------
+
+
 source(file = "C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/data_preparation.R",local= TRUE)
 data = read.csv("C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/CAC40_15_19.csv") #fichier csv de Yahoo finance
 
@@ -35,7 +41,7 @@ transform_csv <- function(data){
 data <- transform_csv(data)
 
 
-
+#---------------------- Calcul des théta par QML ------------------------
 
 QML <-function(eps2){
   n = length(eps2) #longueur de la série financière
@@ -69,15 +75,7 @@ simu_sigma2 <- function(eps2,theta){
 
 
 
-simulation_rendements_1 <- function(theta, loi_eta =rnorm, sigma_init = sqrt(theta[1]/(1-theta[2]-theta[3]))){
-  etas = rnorm(1)
-  etas2 = etas**2
-  sigmas2 = c(sigma_init**2)
-  sigmas2[i] = theta[1] + sigmas2[i-1]*(theta[2]*etas2[i-1]+theta[3])
-  epsilons2 = etas2*sigmas2
-  epsilons = sign(etas)*sqrt(epsilons2)
-  return(epsilons)
-}
+#---------------------- Calcul des prédictions GARCH à horizon 1 ------------------------
 
 pred_horizon_1 <- function(cut, data, loi_eta =rnorm){
   n = length(data[,4])- cut
@@ -98,6 +96,8 @@ pred_horizon_1 <- function(cut, data, loi_eta =rnorm){
   return(data.frame(df))
 }
 
+
+#---------------------- Exemple de prédiction GARCH à horizon 1 ------------------------
 cut = 500
 n = length(data[,4]) - cut
 pred = pred_horizon_1(500, data, loi_eta =rnorm)
@@ -107,6 +107,7 @@ epsi = data.frame(data[501:1021,3])
 
 
 
+#---------------------- Prédiction naive à horizon 1 ------------------------
 
 bb_exp<-function(data, window, m){
   
@@ -140,9 +141,14 @@ bb_exp<-function(data, window, m){
   return(tableau)
 }
 
+
+#---------------------- Exemple de prédiction naive à horizon 1 ------------------------
 bb_data = bb_exp(data[,3],2, 2)
 bb_data = data.frame(bb_data[501:1021,4])
 
+
+
+#---------------------- Comparaison graphique ------------------------
 
 x  <- c(1:521)
 
@@ -157,5 +163,7 @@ lines(x, epsi[,1], col="red",lty=2)
 points(x, bb_data[,1], col="green", pch=".")
 lines(x, bb_data[,1], col="green",lty=3)
 
+#---------------------- Test de DM  ------------------------
+#---------------------- For alternative="greater", the alternative hypothesis is that method 2 is more accurate than method 1.  ------------------------
 
 forecast::dm.test(pred[,1], bb_data[,1], alternative = c("greater"), h = 1, power = 2)
