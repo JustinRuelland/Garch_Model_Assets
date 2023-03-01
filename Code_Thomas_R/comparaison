@@ -1,6 +1,4 @@
 
-#---------------------- Installation des packages et librairies ------------------------
-
 install.packages("signal")
 install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
@@ -17,8 +15,8 @@ library(roll)
 library(ggplot2)
 library(dplyr)
 library(pracma)
-install.packages("dm.test")
-install.packages('forecast', dependencies = TRUE)
+#install.packages("dm.test")
+#install.packages('forecast', dependencies = TRUE)
 library('dm.test')
 
 #---------------------- Mise en place des données ------------------------
@@ -70,35 +68,40 @@ simu_sigma2 <- function(eps2,theta){
   return(sigmas2)
 }
 
-
+eps2 = data[,4]
 
 
 #---------------------- Prediction des rendements par GARCH à horizon 1  ------------------------
-pred_horizon_1 <- function(cut, data, loi_eta =rnorm){
-  n = length(data[,4])- cut
+pred_horizon_1 <- function(cut, eps, loi_eta =rnorm){
+  
+  n = length(eps2)- cut
   df <- data.frame(Col1 = double())
+  eps = sqrt(eps2)
   
   for(i in 1:n) {
-    theta_hat = QML(data[,4][1:cut+i-1])
+    borne = cut+i-1
+    theta_hat = QML(eps2[1:borne])
+    sigma2 = simu_sigma2(eps2[1:borne], theta_hat)
+    sigma = sqrt(sigma2)
+    eta_quantile = data[,3][1:borne]/sigma[1:borne]
+    sigma_t = theta_hat[1] + theta_hat[2] * data[borne,4] + theta_hat[2] * sigma2[borne]
     
-    sigma_init = sqrt(theta_hat[1]/(1-theta_hat[2]-theta_hat[3]))
-    sigmas2 = c(sigma_init**2)
     etas = rnorm(1)
     etas2 = etas**2
     
-    epsilons2 = etas2*sigmas2
+    epsilons2 = etas2*sigma_t
     epsilons = sign(etas)*sqrt(epsilons2)
-    df[i+cut,1] <- epsilons
+    df[i+cut,1] <-sigma_t 
   }
   return(data.frame(df))
 }
 
-cut = 800
+cut = 500
 n = length(data[,4]) - cut
-pred = pred_horizon_1(800, data, loi_eta =rnorm)
+pred = pred_horizon_1(500, data, loi_eta =rnorm)
 a = 801
-pred = data.frame(pred[801:1021,1])
-epsi = data.frame(data[801:1021,3])
+pred = data.frame(pred[500:1021,1])
+epsi = data.frame(data[500:1021,4])
 
 
 
@@ -135,31 +138,29 @@ bb_exp<-function(data, window, m){
   return(tableau)
 }
 
-bb_data = bb_exp(data[,3],100, 2)
-bb_data = data.frame(bb_data[801:1021,4])
-
+bb_data = bb_exp(data[,3],10, 2)
+bb_data = data.frame(bb_data[500:1021,4])
+bb_data = bb_data*bb_data
 
 
 #---------------------- Comparaison des erreurs ------------------------
 
-x  <- c(1:221)
+x  <- c(1:522)
 
 #plot the first data series using plot()
-plot(x, pred[,1]-epsi[,1], type="o", col="blue", pch=".", ylab="y", lty=1)
+plot(x, bb_data[,1], type="o", col="blue", pch=".", ylab="y", lty=1)
 
 
 #add second data series to the same chart using points() and lines()
-#points(x, epsi[,1], col="red", pch=".")
-#lines(x, epsi[,1], col="red",lty=2)
+points(x, pred[,1], col="red", pch=".")
+lines(x, pred[,1], col="red",lty=2)
 
-points(x, bb_data[,1]-epsi[,1], col="green", pch=".")
-lines(x, bb_data[,1]-epsi[,1], col="green",lty=3)
+points(x, epsi[,1], col="green", pch=".")
+lines(x, epsi[,1], col="green",lty=3)
 
 #---------------------- Test DM  ------------------------
 #---------------------- For alternative="greater", the alternative hypothesis is that method 2 is more accurate than method 1. ------------------------
 
 
 forecast::dm.test(pred[,1]-epsi[,1], bb_data[,1]-epsi[,1], alternative = c("greater"), h = 1, power = 2)
-
-
 
