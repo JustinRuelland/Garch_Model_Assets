@@ -30,6 +30,5 @@ rendements_no_disc[200]
 
 print(p_val_disc == p_val_no_disc)
 
-# Pb pour DAX : la fonction d'optimisation bug car série trop longue
-# CAC40 : p_valeur : 0.68 pour série discountée
-#                    10^-24 pour série non discountée
+# Pb pour DAX : la fonction d'optimisation bug car valeurs manquantes
+# CAC40 : p_valeur : 
