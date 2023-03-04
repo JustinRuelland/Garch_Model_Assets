@@ -1,10 +1,10 @@
 #---------------------- calcul des sigma et des eps ------------------------
 
-#calcul récurssif pour un sigma(t) précis (FACULTATIF)
-func_sigma2 <- function(t,sigma2_init,eta2,theta){
+#calcul récurssif pour un sigma(t) précis
+func_sigma2 <- function(t,sigma2_init,eps2,theta){
   res <- sigma2_init
   if(t>1){
-    res<-theta[1] + (theta[2]*eta2[t-1] + theta[3])*func_sigma2(t-1,sigma2_init,theta)}
+    res<-theta[1] + theta[2]*eps2[t-1] + theta[3]*func_sigma2(t-1,sigma2_init,eps2,theta)}
   return(res)}
 
 #simulation d'une suite de n epsilon à partir des sigma aussi simulés
