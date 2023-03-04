@@ -158,12 +158,15 @@ res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=FALSE)
 n_cut  = floor(0.8*length(eps_sim))
 l1 = n-n_cut
 l2 = n_cut+1
-x = c(1:l1)
+xx = c(1:l1)
 
-plot(x, eps_sim[l2:length(eps_sim)], type = "l")
-lines(x, eps_sim[l2:length(eps_sim)], col = "blue")
-lines(x, res$upper.bounds, col = "red")
-lines(x, res$lower.bounds, col = "red")
+res_for_plot = as.data.frame(res)
+res_for_plot$abs= xx
+res_for_plot$eps_sim = eps_sim[l2:length(eps_sim)]
+
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps_sim)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red') + 
+            geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red')
 
 #estimation, un peu long à executer
 distrib = c()
@@ -187,14 +190,19 @@ n = length(eps_cac)
 n_cut  = floor(0.8*n)
 l1 = n-n_cut
 l2 = n_cut+1
-x = c(1:l1)
+xx = c(1:l1)
 
-plot(x, eps_cac[l2:length(eps_cac)], type = "l")
-lines(x, eps_cac[l2:length(eps_cac)], col = "blue")
-lines(x, res_cac$upper.bounds, col = "red")
-lines(x, res_cac$lower.bounds, col = "red")
-lines(x, res_cac_emp$upper.bounds, col = "green")
-lines(x, res_cac_emp$lower.bounds, col = "green")
+res_for_plot = as.data.frame(res_cac)
+res_for_plot$abs= xx
+res_for_plot$eps_cac= eps_cac[l2:length(eps_cac)]
+res_for_plot$upper.bounds_emp= res_cac_emp$upper.bounds
+res_for_plot$lower.bounds_emp= res_cac_emp$lower.bounds
+
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps_cac)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds_emp), color='green') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds_emp), color='green')  
 
 
 
@@ -212,12 +220,12 @@ n = length(eps2_sim)
 n_cut  = floor(0.75*n)
 l1 = n-n_cut
 l2 = n_cut+1
-x = c(1:l1)
-
-plot(x, eps2_sim[l2:length(eps2_sim)], type = "l")
-lines(x, eps2_sim[l2:length(eps2_sim)], col = "blue")
-lines(x, res$upper.bounds, col = "red")  
-
+xx = c(1:l1)
+res_for_plot = as.data.frame(res)
+res_for_plot$eps2 = eps2_sim[l2:length(eps2_sim)]
+res_for_plot$abs= xx
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')
 
 #estimation
 distrib = c()
@@ -237,10 +245,12 @@ n = length(eps2_cac)
 n_cut  = floor(0.75*n)
 l1 = n-n_cut
 l2 = n_cut+1
-x = c(1:l1)
-plot(x, eps2_cac[l2:length(eps2_cac)], type = "l")
-lines(x, eps2_cac[l2:length(eps2_cac)], col = "blue")
-lines(x, res_cac$upper.bounds, col = "red")
+xx = c(1:l1)
+res_for_plot = as.data.frame(res_cac)
+res_for_plot$eps2 = eps2_cac[l2:length(eps2_cac)]
+res_for_plot$abs= xx
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')
 
 
 
@@ -278,14 +288,17 @@ n = length(eps_lap)
 n_cut  = floor(0.8*n)
 l1 = n-n_cut
 l2 = n_cut+1
-x = c(1:l1)
-
-plot(x, eps_lap[l2:length(eps_lap)], type = "l")
-lines(x, eps_lap[l2:length(eps_lap)], col = "blue")
-lines(x, res_lap$upper.bounds, col = "red")
-lines(x, res_lap$lower.bounds, col = "red")
-lines(x, res_lap_emp$upper.bounds, col = "green")
-lines(x, res_lap_emp$lower.bounds, col = "green")
+xx = c(1:l1)
+res_for_plot = as.data.frame(res_lap)
+res_for_plot$eps2 = eps_lap[l2:length(eps_lap)]
+res_for_plot$abs= xx
+res_for_plot$upper.bounds_emp = res_lap_emp$upper.bounds
+res_for_plot$lower.bounds_emp = res_lap_emp$lower.bounds
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')+
+  geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red')+
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds_emp), color='green')+
+  geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds_emp), color='green')
 
 
 # ii. Changement des paramètres de GARCH(1,1)
@@ -297,11 +310,4 @@ puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 �
 
 #----------------------Rolling average--------------------------
 
-func <-function(x){return(exp(-x**2))}
-install.packages('zoo')
-library('zoo')
-rmean <- rollmean(data$rendement[1:200], k = 10)
-x = c(1:200)
-plot(x,data$rendement[1:200],type='l',col='blue')
-lines(x[1:191],rmean, col='red')
 
