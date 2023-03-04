@@ -3,28 +3,30 @@
 func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
   
   n = length(eps)
+  n_cut = floor(cut*n)
   eps2 = eps**2
   
   #QML, on s'attend à ce que la fonction ait été importée
-  theta = QML(eps2[c(1:cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
+  theta = QML(eps2[c(1:n_cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
   sigma2 = simu_sigma2(eps2,theta) #estimation des sigma2 à partir des epsilon2 passés
   sigma = sqrt(sigma2)
-  eta_quantile = eps[1:cut]/sigma[1:cut]
+  eta_quantile = eps[1:n_cut]/sigma[1:n_cut]
   
   #tests intervalle de confiance
-  cut = cut+1
-  eps_test = eps[cut:n]
-  sigma_test = sigma[cut:n]
+  n_cut = n_cut+1
+  eps_test = eps[n_cut:n]
+  sigma_test = sigma[n_cut:n]
   
   
   if(empirical==FALSE){
     upper = q_sup*sigma_test
     lower = q_inf*sigma_test}
-  else {upper = quantile(x=eta_quantile,prob=0.975)*sigma_test
-  lower = quantile(x=eta_quantile,prob=0.025)*sigma_test}
+  else{
+    upper = quantile(x=eta_quantile,prob=0.975)*sigma_test
+    lower = quantile(x=eta_quantile,prob=0.025)*sigma_test}
   
   outside = length(eps_test[(eps_test>upper)|(eps_test<lower)])
-  inside = n - cut + 1 -outside
+  inside = n - n_cut + 1 -outside
 
   #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
   obs = c(outside,inside) #effectifs observés
@@ -42,15 +44,16 @@ func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
 backtest_square <-function(eps2,cut){
   
   n = length(eps2)
-  theta = QML(eps2[c(1:cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
+  n_cut = floor(cut*n)
+  theta = QML(eps2[c(1:n_cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
   sigma2_hat = simu_sigma2(eps2,theta)
   
-  cut = cut+1
-  eps2_test = eps2[cut:n]
-  sigma2_test = sigma2_hat[cut:n]
+  n_cut = n_cut+1
+  eps2_test = eps2[n_cut:n]
+  sigma2_test = sigma2_hat[n_cut:n]
   upper = qchisq(df=1,p=0.95)*sigma2_test
   outside = length(eps2_test[(eps2_test>upper)])
-  inside = n - cut + 1 -outside
+  inside = n - n_cut + 1 -outside
   
   #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
   obs = c(outside,inside) #effectifs observés
@@ -97,24 +100,25 @@ simu_rejet <- function(ker){
 pred_h2_kernel <- function(eps,cut,nb_sim){
   
   n = length(eps)
+  n_cut = floor(cut*n)
   
-  theta_hat = QML(eps[1:cut]**2)
+  theta_hat = QML(eps[1:n_cut]**2)
   w  = theta_hat[1]
   a = theta_hat[2]
   b = theta_hat[3]
   
   sigma2 = simu_sigma2(eps**2, theta_hat)
   sigma = sqrt(sigma2)
-  eta = eps[1:cut]/sigma[1:cut]
+  eta = eps[1:n_cut]/sigma[1:n_cut]
   
   ker = density(eta)
 
   
-  cut = cut + 1
+  n_cut = n_cut + 1
   bounds_inf = c()
   bounds_sup = c()
   
-  for(i in cut:n){
+  for(i in n_cut:n){
     
     pred_h2 = c() 
     
@@ -127,6 +131,8 @@ pred_h2_kernel <- function(eps,cut,nb_sim){
     bounds_sup[i] = quantile(x=pred_h2, probs=0.975) }   }
   
   return(c(bounds_inf,bounds_sup))}
+
+
 
 #setwd("C:/Users/maeld/OneDrive/Documents/GitHub/Garch_Model_Assets") #nécessaire pour Maël
 #source(file= "./QML_Variance.R",local=TRUE)
