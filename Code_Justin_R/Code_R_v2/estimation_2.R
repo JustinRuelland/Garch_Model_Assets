@@ -42,6 +42,20 @@ bootstrap_etas <- function(etas, n){
   return(sample(x = etas, size = n, replace = TRUE))
 }
 
+# Fitting de densité
+hist(eta_traited, freq = F)
+lines(density(eta_traited), col = "red")
+xxx <- seq(from = min(hist(eta_traited, plot = F)$breaks), to=max(hist(eta_traited, plot = F)$breaks), by=0.1)
+lines(x = xxx, y = dnorm(x = xxx, mean = mean(eta_traited), sd = sd(eta_traited)), col = "blue")
+
+
+
+fitting_etas <- function(etas, n){
+  u <- runif(n)
+  return(quantile(etas, u))
+}
+
+
 
 # Simulation des bras inconnus
 trajectory <- function(sigma_init, eps_init, etas, theta){
@@ -60,10 +74,15 @@ trajectory <- function(sigma_init, eps_init, etas, theta){
   return(eps)
 }
 
-trajectories_bootstrapped <- function(sigma_init, eps_init, etas_estimated, n_path, n_day, theta){
+trajectories_bootstrapped <- function(sigma_init, eps_init, etas_estimated, n_path, n_day, theta, bootstrap=TRUE){
   matrix_simulation <- matrix(data = 0, nrow = n_path, ncol = n_day)
   for(i in 1:n_path){
-    etas <- bootstrap_etas(etas_estimated, n_day)
+    if(bootstrap){
+      etas <- bootstrap_etas(etas_estimated, n_day)
+    }else{
+      etas <- fitting_etas(etas_estimated, n_day)
+    }
+    
     
     eps <- 1:n_day
     sigma_square <- theta[1] + theta[2]*(eps_init**2) + theta[3]*(sigma_init**2)
@@ -81,8 +100,8 @@ trajectories_bootstrapped <- function(sigma_init, eps_init, etas_estimated, n_pa
 
 # Display of the trajectories
 
-day_simulated <- 500
-day_displaying <- 1000 # take into account the simulated days
+day_simulated <- 30
+day_displaying <- 50 # take into account the simulated days
 path_simulated <- 3000
 
 sigma_init <- sigma_traited[length(sigma_traited)]
@@ -116,41 +135,6 @@ displaying_trajectories <- function(epsilon_initial, matrix_simulation, day_disp
   p
 }
 
-#OOOF
-matrix_simulation = matrix_trajectories
-start <- day_displaying - length(matrix_simulation[1,]) + 1
-matrix_displaying <- matrix(data = NA, nrow=path_simulated, ncol = (day_displaying - day_simulated))
-matrix_displaying[,(start-1)] <- rep(epsilon_initial[(start-1)], length(matrix_simulation[,1]))
-matrix_displaying <- cbind(matrix_displaying, matrix_simulation)
-matrix_displaying <- cbind(t(matrix_displaying), 1:day_displaying)
-
-df <- as.data.frame(matrix_displaying)
-n_path <- length(matrix_simulation[,1])
-colnames(df)[n_path+1] <- "Index"
-
-df_true <- as.data.frame(cbind(as.matrix(epsilon_initial, ncol=1), 1:day_displaying))
-colnames(df_true)[2] <- "Date"
-
-rainbow_p <- rainbow(n_path, s=.6, v=.9)[sample(1:n_path, n_path)]
-p <- ggplot(data = df_true)
-p <- p + geom_line(aes(x = Date, y = V1), color="black")
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V1"]]), color=rainbow_p[1])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V2"]]), color=rainbow_p[2])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V3"]]), color=rainbow_p[3])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V4"]]), color=rainbow_p[4])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V5"]]), color=rainbow_p[5])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V6"]]), color=rainbow_p[6])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V7"]]), color=rainbow_p[7])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V8"]]), color=rainbow_p[8])
-#p <- p + geom_line(aes(x=df[["Index"]], y=df[["V9"]]), color=rainbow_p[9])
-#m <- p + geom_line(aes(x=df[["Index"]], y=df[["V1"]]), color=rainbow_p[1])
-for(i in 1:n_path){
-  col <- paste("V", as.character(i), sep = "")
-  p <- p + geom_line(aes_(x=df[["Index"]], y=df[[col]]), color=rainbow_p[i])
-}
-p <- p + geom_line(aes_(x = df_true[["Date"]], y = df_true[["V1"]]), color="black")
-p
-#OOOF
 
 estimation_day <- threshold_train+1
 end_day <- estimation_day + day_simulated - 1
@@ -165,9 +149,11 @@ displaying_trajectories(epsilon_initial = epsilon_initial, matrix_simulation = m
 
 matrix_trajectories <- matrix(data=0, nrow=path_simulated, ncol = day_simulated)
 matrix_trajectories <- trajectories_bootstrapped(sigma_init = sigma_init, eps_init = eps_init, etas_estimated = eta_traited, n_path = path_simulated, n_day = day_simulated, theta = theta_hat)
+matrix_trajectories_notbootstrapped <- trajectories_bootstrapped(sigma_init = sigma_init, eps_init = eps_init, etas_estimated = eta_traited, n_path = path_simulated, n_day = day_simulated, theta = theta_hat, bootstrap = FALSE)
 
 #---Moyenne---
 Mean_along_sim <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+Mean_along_sim_nb <- matrix(data=NA, nrow = 1, ncol = day_simulated)
 
 #---IC 95%---
 IC_along_sim_up <- matrix(data=NA, nrow = 1, ncol = day_simulated)
@@ -177,6 +163,16 @@ for(i in 1:day_simulated){
   Mean_along_sim[1,i] <- mean(matrix_trajectories[,i])
   IC_along_sim_up[1,i] <- quantile(matrix_trajectories[,i], probs = 0.975)
   IC_along_sim_down[1,i] <- quantile(matrix_trajectories[,i], probs = 0.025)
+}
+
+#---IC 95%--- not boostrapped
+IC_along_sim_up_nb <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+IC_along_sim_down_nb <- matrix(data=NA, nrow = 1, ncol = day_simulated)
+
+for(i in 1:day_simulated){
+  Mean_along_sim_nb[1,i] <- mean(matrix_trajectories_notbootstrapped[,i])
+  IC_along_sim_up_nb[1,i] <- quantile(matrix_trajectories_notbootstrapped[,i], probs = 0.975)
+  IC_along_sim_down_nb[1,i] <- quantile(matrix_trajectories_notbootstrapped[,i], probs = 0.025)
 }
 
 #---IC 95% naif---
@@ -210,6 +206,26 @@ df_ic_down <- cbind(t(df_ic_down), 1:day_displaying)
 df_ic_down <- as.data.frame(df_ic_down)
 colnames(df_ic_down)[2] <- "Date"
 
+#not bootstrappe
+df_mean_nb <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_mean_nb<- cbind(df_mean_nb, Mean_along_sim_nb)
+df_mean_nb <- cbind(t(df_mean_nb), 1:day_displaying)
+df_mean_nb <- as.data.frame(df_mean_nb)
+colnames(df_mean_nb)[2] <- "Date"
+
+df_ic_up_nb <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_up_nb<- cbind(df_ic_up_nb, IC_along_sim_up_nb)
+df_ic_up_nb <- cbind(t(df_ic_up_nb), 1:day_displaying)
+df_ic_up_nb <- as.data.frame(df_ic_up_nb)
+colnames(df_ic_up_nb)[2] <- "Date"
+
+df_ic_down_nb <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
+df_ic_down_nb<- cbind(df_ic_down_nb, IC_along_sim_down_nb)
+df_ic_down_nb <- cbind(t(df_ic_down_nb), 1:day_displaying)
+df_ic_down_nb <- as.data.frame(df_ic_down_nb)
+colnames(df_ic_down_nb)[2] <- "Date"
+#---
+
 df_ic_up_naif <- matrix(data = NA, nrow=1, ncol = (day_displaying - day_simulated))
 df_ic_up_naif<- cbind(df_ic_up_naif, IC_naif_up)
 df_ic_up_naif <- cbind(t(df_ic_up_naif), 1:day_displaying)
@@ -226,90 +242,22 @@ p2 <- ggplot(data = df_true) + geom_line(aes(x = Date, y = V1), color="black")
 p2 <- p2 + geom_line(aes(x=df_mean[["Date"]], y=df_mean[["V1"]]), color="blue")
 p2 <- p2 + geom_line(aes(x=df_ic_up[["Date"]], y=df_ic_up[["V1"]]), color="red")
 p2 <- p2 + geom_line(aes(x=df_ic_down[["Date"]], y=df_ic_down[["V1"]]), color="red")
+#NB
+p2 <- p2 + geom_line(aes(x=df_mean_nb[["Date"]], y=df_mean_nb[["V1"]]), color="green")
+p2 <- p2 + geom_line(aes(x=df_ic_up_nb[["Date"]], y=df_ic_up_nb[["V1"]]), color="purple")
+p2 <- p2 + geom_line(aes(x=df_ic_down_nb[["Date"]], y=df_ic_down_nb[["V1"]]), color="purple")
+#--
 p2 <- p2 + geom_line(aes(x=df_ic_up_naif[["Date"]], y=df_ic_up_naif[["V1"]]), color="orange")
 p2 <- p2 + geom_line(aes(x=df_ic_down_naif[["Date"]], y=df_ic_down_naif[["V1"]]), color="orange")
 p2 <- p2 + ggtitle("Estimation APPL horizon 500 jours par modèle GARCH") + xlab("Date") + ylab("Rendement")
 p2
 
 
-
-
-
-# Old version of the code
-
-
-n_long <- threshold_train + 1
-
-boostraped_estimation <- function(epsilon_traited, sigma_traited, eta_traited, n_long, n_path, n_day){
-  simulated_garch <- matrix(data = 0, nrow = n_path, ncol =100)
-  for(j in 1:n_path){
-    #Bootstrap for n etas
-    eta_bootstraped <- sample(eta_traited, size = n_day, replace = TRUE)
-    
-    #Following for n sigmas
-    sigmas_square <- c(sigma_square_traited)
-    etas <- c(eta_traited, eta_bootstraped)
-    eps_simulated <- c(epsilon_traited)
-    n_eps_traited <- length(sigma_traited)
-    for(i in 1:n_day){
-      k <- n_eps_traited + i
-      sigmas_square[k] = theta_hat[1] + theta_hat[2]*(sigmas_square[k-1]*etas[k-1]**2) + theta_hat[3]*sigmas_square[k-1]
-      eps_simulated[k] = sqrt(sigmas_square[k]) * etas[k]
-    }
-    cut <- length(eps_simulated) - 99
-    simulated_garch[j,] = eps_simulated[cut:length(eps_simulated)]
-  }
-  return(simulated_garch)
+# Visualisation simulation par méthode d'inversion
+density_fitted <- density(eta_traited)
+plot(density_fitted, col="red")
+eta_sim <- runif(629)
+for(i in 1:629){
+  eta_sim[i] <- quantile(eta_traited, eta_sim[i])
 }
-
-path <- 300
-cutting <- 10
-cut <- n_long-77
-cut_end <- n_long+22
-matrix_sim <- cbind(t(boostraped_estimation(epsilon_traited, sigma_traited, eta_traited, n_long, path, 70)), cut:cut_end)
-simulation <- as.data.frame(matrix_sim)
-colnames(simulation)[path+1] <- "Date" 
-t <- "Date"
-
-p <- ggplot(data=simulation)
-rainbow_p <- rainbow(path*100, s=.6, v=.9)[sample(1:(path*100), path)]
-ic_garch <- rep(0.016, 30)
-for(i in 1:path){
-  col <- paste("V", as.character(i), sep="")
-  p <- p + geom_line(aes(x=Date, y= .data[[col]]), color=rainbow_p[i])
-  #p <- p + geom_line(aes(x=Date, y= .data[[col]]), color="black")
-  
-}
-for(i in 1:70){
-  ic_garch <- c(ic_garch, quantile(matrix_sim[i,1:300], probs=0.95))
-  ic_garch_2 <- c(ic_garch, quantile(matrix_sim[i,1:300], probs=0.05))
-}
-#p <- ggplot(data=simulation) + geom_line(aes(x=.data[[t]], y=V1), color="blue") + geom_line(aes(x=Date, y=V2), color="blue") + geom_line(aes(x=Date, y=V2), color="blue")
-#p <- p + geom_line(aes(x=Date, y= ))
-#Bootstrap for 2 etas
-
-p <- p + geom_line(aes(x=Date, y=0.016), color="black")
-p <- p + geom_line(aes(x=Date, y=-0.018), color="black")
-c2 <- cut+48
-c2_End <- cut_end + 48
-p <- p + geom_line(aes(x=Date, y=epsilon[c2:c2_End]), color="black")
-#p <- p + geom_lin
-p <- p + geom_line(aes(x=Date, y=ic_garch[1:100]), color="brown")
-p <- p + geom_line(aes(x=Date, y=ic_garch_2[1:100]), color="brown")
-p
-
-eta_bootstraped <- sample(eta_traited, size = 2, replace = TRUE)
-
-#Following for 2 sigmas
-sigmas_square <- c(sigma_square_traited)
-etas <- c(eta_traited, eta_bootstraped)
-eps_simulated <- c(epsilon_traited)
-n_eps_traited <- length(sigma_traited)
-for(i in 1:2){
-  k <- n_eps_traited + i
-  sigmas_square[k] = theta_hat[1] + theta_hat[2]*(sigmas_square[k-1]*etas[k-1]**2) + theta_hat[3]*sigmas_square[k-1]
-  eps_simulated[k] = sqrt(sigmas_square[k]) * etas[k]
-}
-
-
-
+lines(density(eta_sim), col="blue")
