@@ -152,10 +152,16 @@ n = 10**4
 
 #série simulée, graphique avec les IC
 eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
-res = func_backtest(eps_sim,-1.96,1.96,8000,empirical=FALSE)
-x = c(1:2000)
-plot(x, eps_sim[8001:length(eps_sim)], type = "l")
-lines(x, eps_sim[8001:length(eps_sim)], col = "blue")
+res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=FALSE)
+
+#paramètres pour les plots
+n_cut  = floor(0.8*length(eps_sim))
+l1 = n-n_cut
+l2 = n_cut+1
+x = c(1:l1)
+
+plot(x, eps_sim[l2:length(eps_sim)], type = "l")
+lines(x, eps_sim[l2:length(eps_sim)], col = "blue")
 lines(x, res$upper.bounds, col = "red")
 lines(x, res$lower.bounds, col = "red")
 
@@ -163,7 +169,7 @@ lines(x, res$lower.bounds, col = "red")
 distrib = c()
 for(i in 1:1000){
   eps_sim = simu_eps(10**3,eps2_0,sigma2_0,theta_0)
-  res = func_backtest(eps_sim,-1.96,1.96,800,empirical=FALSE)
+  res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=FALSE)
   distrib[i] = res$p.value}
 
 print(length(distrib[distrib<0.05])/length(distrib))
@@ -172,14 +178,19 @@ print(length(distrib[distrib<0.05])/length(distrib))
 
 #cac40
 eps_cac = data$rendement
-res_cac = func_backtest(eps_cac,-1.96,1.96,800,empirical=FALSE) #loi normale 5%
-res_cac_emp = func_backtest(eps_cac,-1.96,1.96,800,empirical=TRUE)
+res_cac = func_backtest(eps_cac,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_cac_emp = func_backtest(eps_cac,-1.96,1.96,0.8,empirical=TRUE)
 print(res_cac$p.value)
 print(res_cac_emp$p.value)
 
-x = c(1:221)
-plot(x, eps_cac[801:length(eps_cac)], type = "l")
-lines(x, eps_cac[801:length(eps_cac)], col = "blue")
+n = length(eps_cac)
+n_cut  = floor(0.8*n)
+l1 = n-n_cut
+l2 = n_cut+1
+x = c(1:l1)
+
+plot(x, eps_cac[l2:length(eps_cac)], type = "l")
+lines(x, eps_cac[l2:length(eps_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
 lines(x, res_cac$lower.bounds, col = "red")
 lines(x, res_cac_emp$upper.bounds, col = "green")
@@ -195,10 +206,16 @@ eps2_0 = 0
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
 
 eps2_sim = simu_eps(2000,eps2_0,sigma2_0,theta_0)**2
-res = backtest_square(eps2_sim,1500)
-x = c(1:500)
-plot(x, eps2_sim[1501:length(eps2_sim)], type = "l")
-lines(x, eps2_sim[1501:length(eps2_sim)], col = "blue")
+res = backtest_square(eps2_sim,0.75)
+
+n = length(eps2_sim)
+n_cut  = floor(0.75*n)
+l1 = n-n_cut
+l2 = n_cut+1
+x = c(1:l1)
+
+plot(x, eps2_sim[l2:length(eps2_sim)], type = "l")
+lines(x, eps2_sim[l2:length(eps2_sim)], col = "blue")
 lines(x, res$upper.bounds, col = "red")  
 
 
@@ -213,12 +230,16 @@ print(length(distrib[distrib<0.05])/length(distrib))
 
 #cac40
 eps2_cac = data$rendement2
-res_cac = backtest_square(eps2_cac,700) 
+res_cac = backtest_square(eps2_cac,0.75) 
 print(res_cac$p.value)
 
-x = c(1:321)
-plot(x, eps2_cac[701:length(eps2_cac)], type = "l")
-lines(x, eps2_cac[701:length(eps2_cac)], col = "blue")
+n = length(eps2_cac)
+n_cut  = floor(0.75*n)
+l1 = n-n_cut
+l2 = n_cut+1
+x = c(1:l1)
+plot(x, eps2_cac[l2:length(eps2_cac)], type = "l")
+lines(x, eps2_cac[l2:length(eps2_cac)], col = "blue")
 lines(x, res_cac$upper.bounds, col = "red")
 
 
@@ -245,17 +266,22 @@ for(i in 1:100){
   eps_lap = sign(eta_lap)*sqrt(eps2_lap)
 
   #quantiles de la loi normale
-  res_lap = func_backtest(eps_lap,-1.96,1.96,800,empirical=FALSE)
-  res_lap_emp = func_backtest(eps_lap,-1.96,1.96,800,empirical=TRUE)
+  res_lap = func_backtest(eps_lap,-1.96,1.96,0.8,empirical=FALSE)
+  res_lap_emp = func_backtest(eps_lap,-1.96,1.96,0.8,empirical=TRUE)
   if(res_lap$p.value<0.05){cpt=cpt+1}
   if(res_lap_emp$p.value<0.05){cpt_emp=cpt_emp+1} }
   
 print(c(cpt,cpt_emp)/100)
 
 #plot de la dernière simulation pour illustrer
-x = c(1:200)
-plot(x, eps_lap[801:length(eps_lap)], type = "l")
-lines(x, eps_lap[801:length(eps_lap)], col = "blue")
+n = length(eps_lap)
+n_cut  = floor(0.8*n)
+l1 = n-n_cut
+l2 = n_cut+1
+x = c(1:l1)
+
+plot(x, eps_lap[l2:length(eps_lap)], type = "l")
+lines(x, eps_lap[l2:length(eps_lap)], col = "blue")
 lines(x, res_lap$upper.bounds, col = "red")
 lines(x, res_lap$lower.bounds, col = "red")
 lines(x, res_lap_emp$upper.bounds, col = "green")
