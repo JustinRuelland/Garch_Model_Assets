@@ -1,4 +1,3 @@
-
 install.packages("signal")
 install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
@@ -18,6 +17,8 @@ library(pracma)
 #install.packages("dm.test")
 #install.packages('forecast', dependencies = TRUE)
 library('dm.test')
+#install.packages("ggplot2")          # Install ggplot2 package
+library("ggplot2")   
 
 #---------------------- Mise en place des données ------------------------
 source(file = "C:/Users/thoma/Documents/GitHub/Garch_Model_Assets/data_preparation.R",local= TRUE)
@@ -40,6 +41,9 @@ data <- transform_csv(data)
 
 #---------------------- Calcul du sigma par QML ------------------------
 
+#on part du principe qu'on a observe une série financière
+#dont les rendements au carré sont eps2
+
 QML <-function(eps2){
   n = length(eps2) #longueur de la série financière
   
@@ -57,6 +61,8 @@ QML <-function(eps2){
   return(constrOptim(theta=theta_init,f = f_opt,ci=ci,ui=ui,gr=NULL)$par)} #opti sous contraintes linéaires
 
 
+
+#simulation des sigmas**2 à partir des epsilon**2 connus
 simu_sigma2 <- function(eps2,theta){
   n = length(eps2)
   
@@ -68,41 +74,56 @@ simu_sigma2 <- function(eps2,theta){
   return(sigmas2)
 }
 
-eps2 = data[,4]
 
+#calcul récurssif pour un sigma2(t) précis
+func_sigma2 <- function(t,sigma2_init,eps2,theta){
+  res <- sigma2_init
+  if(t>1){
+    res<-theta[1] + theta[2]*eps2[t-1] + theta[3]*func_sigma2(t-1,sigma2_init,eps2,theta)}
+  return(res)}
 
 #---------------------- Prediction des rendements par GARCH à horizon 1  ------------------------
-pred_horizon_1 <- function(cut, eps, loi_eta =rnorm){
-  
-  n = length(eps2)- cut
+
+
+pred_horizon_1 <- function(cut, eps2){
+  n = length(eps2)
   df <- data.frame(Col1 = double())
-  eps = sqrt(eps2)
-  
-  for(i in 1:n) {
-    borne = cut+i-1
-    theta_hat = QML(eps2[1:borne])
-    sigma2 = simu_sigma2(eps2[1:borne], theta_hat)
-    sigma = sqrt(sigma2)
-    eta_quantile = data[,3][1:borne]/sigma[1:borne]
-    sigma_t = theta_hat[1] + theta_hat[2] * data[borne,4] + theta_hat[2] * sigma2[borne]
-    
-    etas = rnorm(1)
-    etas2 = etas**2
-    
-    epsilons2 = etas2*sigma_t
-    epsilons = sign(etas)*sqrt(epsilons2)
-    df[i+cut,1] <-sigma_t 
+  theta = QML(eps2[1:cut])
+  sigma2 = simu_sigma2(eps2[1:cut], theta)
+  t = cut+1
+  for(i in t:n) {
+    sigma2_t = func_sigma2(i, sigma2[1], eps2[1:i-1], theta)
+    df[i,1] <-sigma2_t 
   }
   return(data.frame(df))
 }
 
-cut = 500
-n = length(data[,4]) - cut
-pred = pred_horizon_1(500, data, loi_eta =rnorm)
-a = 801
-pred = data.frame(pred[500:1021,1])
-epsi = data.frame(data[500:1021,4])
+pred_horizon_1_cut <- function(cut, eps2){
+  n = length(eps2)
+  df <- data.frame(Col1 = double())
+  t = cut+1
+  
+  for(i in t:n) {
+    borne = i-1
+    theta = QML(eps2[1:borne])
+    sigma2 = simu_sigma2(eps2[1:borne], theta)
+    sigma2_t = func_sigma2(i, sigma2[1], eps2[1:borne], theta)
+    df[i,1] <-sigma2_t 
+  }
+  return(data.frame(df))
+}
 
+
+cut = 500
+eps2 = data[,4]
+
+pred = data.frame(pred_horizon_1(cut, eps2))
+pred = data.frame(pred[501:1021,1])
+
+pred_cut = data.frame(pred_horizon_1_cut(cut, eps2))
+pred_cut = data.frame(pred_cut[501:1021,1])
+
+eps2 = data.frame(data[501:1021,4])
 
 
 #---------------------- Prédiction des rendements par méthode naïve à horizon 1 ------------------------
@@ -138,29 +159,34 @@ bb_exp<-function(data, window, m){
   return(tableau)
 }
 
-bb_data = bb_exp(data[,3],10, 2)
-bb_data = data.frame(bb_data[500:1021,4])
-bb_data = bb_data*bb_data
+bb_data = bb_exp(data[,4],4, 2)
+bb_data = data.frame(bb_data[501:1021,4])
+
 
 
 #---------------------- Comparaison des erreurs ------------------------
+data2 <- data.frame(x = 1:length(eps2[,1]),
+                   y1 = eps2[,1],
+                   y2 = pred[,1],
+                   y3 = pred_cut[,1],
+                   y4 = bb_data[,1])
 
-x  <- c(1:522)
 
-#plot the first data series using plot()
-plot(x, bb_data[,1], type="o", col="blue", pch=".", ylab="y", lty=1)
-
-
-#add second data series to the same chart using points() and lines()
-points(x, pred[,1], col="red", pch=".")
-lines(x, pred[,1], col="red",lty=2)
-
-points(x, epsi[,1], col="green", pch=".")
-lines(x, epsi[,1], col="green",lty=3)
+ggp1 <- ggplot(data2, aes(x)) +       # Create ggplot2 plot
+  geom_line(aes(y = y1), color = "red") +
+  geom_line(aes(y = y2), color = "blue") +
+  geom_line(aes(y = y3), color = "green") +
+  geom_line(aes(y = y4), color = "black")
+ggp1                  
 
 #---------------------- Test DM  ------------------------
 #---------------------- For alternative="greater", the alternative hypothesis is that method 2 is more accurate than method 1. ------------------------
 
 
-forecast::dm.test(pred[,1]-epsi[,1], bb_data[,1]-epsi[,1], alternative = c("greater"), h = 1, power = 2)
+forecast::dm.test(pred[,1]-eps2[,1], pred_cut[,1]-eps2[,1], alternative = c("two.sided"), h = 1, power = 2)
+forecast::dm.test(pred[,1]-eps2[,1], pred_cut[,1]-eps2[,1], alternative = c("greater"), h = 1, power = 2)
+
+forecast::dm.test(bb_data[,1]-eps2[,1], pred[,1]-eps2[,1], alternative = c("two.sided"), h = 1, power = 2)
+forecast::dm.test(bb_data[,1]-eps2[,1], pred_cut[,1]-eps2[,1], alternative = c("two.sided"), h = 1, power = 2)
+forecast::dm.test(bb_data[,1]-eps2[,1], pred_cut[,1]-eps2[,1], alternative = c("greater"), h = 1, power = 2)
 
