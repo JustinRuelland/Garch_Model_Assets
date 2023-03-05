@@ -4,12 +4,15 @@ rm(list=ls())
 install.packages("signal")
 install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
+install.packages("forecast")
 
 library(signal)
 library (tidyverse)
 library(dplyr)
 library(ggplot2)
 library(lubridate)
+library(zoo)
+library(forecast)
 
 # DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
 # et choisir le dossier "\Garch_Model_Assets"
@@ -308,6 +311,40 @@ source(file="./puissance_test_chgtGARCH.R")
 puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
 
 
-#----------------------Rolling average--------------------------
+#----------------------Test de Mariano--------------------------
 
+source(file="./comparison_model.R")
+
+eps2 = data$rendement2
+n = length(eps2)
+n_cut = floor(0.8*n)
+
+yy_garch = pred_h1_garch(eps2,0.8)
+yy_roll = rolling_av(eps2,0.8)
+e = n-n_cut
+s = n_cut+1
+res_for_plot = data.frame(abs = c(1:e), garch= yy_garch, roll= yy_roll, eps2 = eps2[s:n])
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=garch), color='red') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=roll), color='green')
+
+test_mariano(yy_garch,yy_roll,eps2[s:n],hor=1) #test de mariano sur le cac40
+
+
+#100 tests de Mariano sur des données simulées
+omega_0 <- 10**(-4)
+alpha_0 <- 0.12
+beta_0 <- 0.83
+theta_0 = c(omega_0,alpha_0,beta_0)
+eps2_0 = 0 
+sigma2_0 = omega_0/(1-alpha_0-beta_0)
+
+cpt = 0
+for(i in 1:100){
+  eps2 = simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2
+  s = floor(0.8*length(eps2))+1
+  t = test_mariano(pred_h1_garch(eps2,0.8),rolling_av(eps2,0.8),eps2[s:length(eps2)],hor=1)
+  if(t$statistic<0 & t$p.value<0.001){cpt = cpt+1}}
+
+print(cpt) #nb de fois où Garch "l'emporte" (avec un niveau à 0.1%) sur 100 simulations
 
