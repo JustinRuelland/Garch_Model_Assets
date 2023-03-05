@@ -20,10 +20,11 @@ pred_h1_garch <- function(eps2,cut){
   return(pred[2:l+1])}
 
 
-rolling_av <- function(eps2,cut){
+rolling_av <- function(eps2,cut,wind,liss_exp){
   
   n = length(eps2)
   n_cut = floor(n*cut)
-  res = rollapply(eps2, width = 10, FUN = mean, align = "right", partial = TRUE)
+  if(liss_exp==TRUE){res = movavg(eps2,n = wind, type='e')}
+  else{res = rollapply(eps2, width = wind, FUN = mean, align = "right", partial = TRUE)}
   e = length(res)-1
   return(res[n_cut:e])}
