@@ -13,6 +13,7 @@ library(ggplot2)
 library(lubridate)
 library(zoo)
 library(forecast)
+library(pracma)
 
 # DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
 # et choisir le dossier "\Garch_Model_Assets"
@@ -314,13 +315,15 @@ puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 �
 #----------------------Test de Mariano--------------------------
 
 source(file="./comparison_model.R")
+source(file= "./QML_Variance.R",local=TRUE)#si pas déjà importé
+ 
 
 eps2 = data$rendement2
 n = length(eps2)
 n_cut = floor(0.8*n)
 
 yy_garch = pred_h1_garch(eps2,0.8)
-yy_roll = rolling_av(eps2,0.8)
+yy_roll = rolling_av(eps2,0.8,4,liss_exp=TRUE)#window = 4
 e = n-n_cut
 s = n_cut+1
 res_for_plot = data.frame(abs = c(1:e), garch= yy_garch, roll= yy_roll, eps2 = eps2[s:n])
@@ -343,7 +346,7 @@ cpt = 0
 for(i in 1:100){
   eps2 = simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2
   s = floor(0.8*length(eps2))+1
-  t = test_mariano(pred_h1_garch(eps2,0.8),rolling_av(eps2,0.8),eps2[s:length(eps2)],hor=1)
+  t = test_mariano(pred_h1_garch(eps2,0.8),rolling_av(eps2,0.8,4,liss_exp=TRUE),eps2[s:length(eps2)],hor=1)
   if(t$statistic<0 & t$p.value<0.001){cpt = cpt+1}}
 
 print(cpt) #nb de fois où Garch "l'emporte" (avec un niveau à 0.1%) sur 100 simulations
