@@ -12,13 +12,14 @@ source(file = "./simulation_series.R",local=TRUE)
 #source(file = )
 
 
-
 #-------------- Studied pairs (alpha,beta) ---------------
 n = 1000 #days
 
 omega = 0.0001
 
-theta1 = c(omega,0.12,0.85)
+theta0 = c(omega,0.12,0.85)
+
+theta1 = theta0
 
 alpha2 = 0.8 #must be included in [0,0,97] (0.97 = alpha1+beta1)
 theta2 = c(omega,alpha2,theta1[2]+theta1[3]-alpha2)
@@ -27,6 +28,8 @@ theta2 = c(omega,alpha2,theta1[2]+theta1[3]-alpha2)
 set.seed(2)
 eps_1 = simulation_rendements(n,theta1)
 eps_2 = simulation_rendements(n,theta2)
+
+eps_1 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta0, theta_2 = theta1, cut = 0.8)
 
 courbe_prix_arg_rendements(eps_1)
 courbe_prix_arg_rendements(eps_2)
