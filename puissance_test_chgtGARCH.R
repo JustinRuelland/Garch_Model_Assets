@@ -27,7 +27,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
   N = 30 #nombre de alphas
   M = 30 #nombre de betas 
   
-  a = seq(0,2,1,length.out=N)
+  a = seq(0,1,length.out=N)
   b = seq(0,1,length.out=M)
   couple = cross2(a,b)
   
@@ -79,7 +79,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
 }
 
 ### Exemple
-# puissance_test_chgtGARCH(0.4,10,1000) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
+puissance_test_chgtGARCH(0.8,10,1000) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
 
 
 # Rprof(NULL)
