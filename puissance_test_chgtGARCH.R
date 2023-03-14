@@ -8,7 +8,6 @@ library("purrr")
 library("plyr")
 library("ggplot2")
 
-options(scipen = 0)
 
 source(file="./simulation_series.R",local=TRUE)
 source(file= "./QML_Variance.R",local=TRUE)
@@ -17,7 +16,7 @@ source(file= "./prevision.R",local=TRUE)
 # Rprof()
 
 #--------------------------- Changement de GARCH ------------------------------
-puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
+puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
   #n : nombres de jours
   #n_path : nombres de trajectoires simulées pour chaque carré
   
@@ -33,9 +32,8 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
   
   
   test_for_alphabeta <- function(alpha_beta){
-    print(alpha_beta)
-    rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,c(alpha_beta))),cut_chgt)
-    p_val = func_backtest(rendements,-1.96,1.96,8*n%/%10,FALSE)$p.value #8*n%/%10 : le cut est à 80% des données
+    rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,c(alpha_beta))),cut_chgt,etas = loi_eta(n))
+    p_val = func_backtest(rendements,-1.96,1.96,0.8,FALSE)$p.value #0.8 : le cut est à 80% des données
     return(p_val)
   }
   
@@ -79,8 +77,13 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000){
 }
 
 ### Exemple
-puissance_test_chgtGARCH(0.8,10,1000) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
 
+normalised_student<-function(n){
+  df = 5 #degree of freedom
+  res = rt(n,df)/(sqrt(df/(df-2)))
+}
+
+# puissance_test_chgtGARCH(0.8,10,1000,loi_eta = normalised_student) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
 
 # Rprof(NULL)
 # summaryRprof()

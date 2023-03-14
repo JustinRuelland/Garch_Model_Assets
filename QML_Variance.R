@@ -48,7 +48,7 @@ QML <-function(eps2){
     #on retire les 20 premières données (négligeables cf notes)
     return(sum(log(sigmas2_QML[25:n])+(eps2[25:n]/sigmas2_QML[25:n]))) } #log vraisemblance
   
-  theta_init = c(0.0001,0.12,0.8) #valeur initiale
+  theta_init = c(0.0001,0.18,0.8) #valeur initiale
   
   #contraintes
   ui <- cbind(c(1,-1,0,0,0,0),c(0,0,1,-1,0,0),c(0,0,0,0,1,-1))
