@@ -55,19 +55,22 @@ sigma1_hat = simu_sigma2(eps_1**2, theta=theta1_hat)
 sigma2_hat = simu_sigma2(eps_2**2, theta=theta2_hat)
 
 # Affichages - que de n_cut à n -> test set du backtest
-window = n_cut:820
+window = n_cut:900
 
 df = cbind(Date = window,sigma1_hat[window],sigma2_hat[window])
 df = as.data.frame(df)
 colnames(df) = c("Date","sigma1_hat","sigma2_hat")
 
-p1 = ggplot(data=df)+geom_line(aes(x = Date,y = sigma1_hat))+ylab("Carré du sigma estimé (série 1)")
+p1 = ggplot(data=df)+geom_line(aes(x = Date,y = sigma1_hat))+ylab("Sigma carré estimé (série 1)")
 p1
 
-p2 = ggplot(data=df)+geom_line(aes(x=Date, y = sigma2_hat))+ylab("Carré du sigma estimé (série 2)")
+p2 = ggplot(data=df)+geom_line(aes(x=Date, y = sigma2_hat))+ylab("Sigma carré estimé (série 2)")
 p2
 
+p = ggplot(data=df)+geom_line(aes(x=Date, y = sigma2_hat))+geom_line(aes(x=Date, y = sigma1_hat))
+p
+
 # Comparaison des moyennes
-m1 = mean(sigma1_hat)
-m2 = mean(sigma2_hat)
+m1 = mean(sigma1_hat[n_cut:n])
+m2 = mean(sigma2_hat[n_cut:n])
 # print("blabl" + m1)
