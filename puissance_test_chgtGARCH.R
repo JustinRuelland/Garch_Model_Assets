@@ -77,12 +77,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
 }
 
 ### Exemple
-
-normalised_student<-function(n){
-  df = 5 #degree of freedom
-  res = rt(n,df)/(sqrt(df/(df-2)))
-}
-
+# source(file = "./white_noise_laws.R",local= TRUE)
 # puissance_test_chgtGARCH(0.8,10,1000,loi_eta = normalised_student) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
 
 # Rprof(NULL)
