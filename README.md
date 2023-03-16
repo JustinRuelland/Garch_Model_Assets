@@ -5,6 +5,11 @@
   - *plot_series_temp* : réalise les graphiques des prix, rendements et rendements au carré en fonction du temps
   - *autocorrelations* : graphiques autocorrélations des rendements et rendements au carré
   - *transform_csv_with_discount*(data,r) : transform_csv mais qui discount les prix au taux quotidient r
+  
+- Fichier **white_noise_laws.R** : On implémente des lois normalisées pour la loi des eta, pour qu'on puisse mettre autre chose que "rnorm(n)". Toutes les fonctions renvoient un vecteur de taille n.
+  - runif_normalisee(n) : loi uniforme normalisée
+  - rt_8_normalisee(n) : loi de Student à 8 degrés de liberté normalisée
+  - normalised_student(n) : loi de Student à 5 degrés de liberté normalisée (le degré ici a vocation à être modifiée si nécessaire)
 
 - Fichier **condition_stationnarite.R** :
   - *condition_stationnarite* : à partir de la loi des etas (bruit blanc), renvoie un dataframe de couples (alpha,beta) qui indiquent la condition de stationnarité
