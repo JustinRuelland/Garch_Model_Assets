@@ -40,10 +40,8 @@ autocorrelations(data)
 
 ```{r}
 source(file= "./condition_stationnarite.R",local=TRUE)
-
+source(file= "./white_noise_laws.R", local=TRUE)
 # Définition des lois normalisées pour les eta qu'on veut tester
-runif_normalisee <-function(n){return(runif(n,-sqrt(3),sqrt(3)))}
-rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))} # Loi de Student à 8 degrés de liberté
 
 # Affichage et sauvergarde (dans le dossier "Graphiques_pour_Latex") du graphique qui contient les courbes de condition de stationnarité pour les 3 lois spécifiées
 superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
@@ -165,7 +163,6 @@ source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
 ```
 
 ```{r}
-#a) rendements
 
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
