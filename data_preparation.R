@@ -1,5 +1,3 @@
-library (tidyverse)
-
 transform_csv <- function(data){
   data = select(data, "Open","Date")
   data = rename(data, c("Prix"="Open"))
