@@ -1,10 +1,16 @@
-#--------------Imports des packages--------------------
-rm(list=ls())
+---
+title: "R Notebook - Stat'App main"
+output: html_notebook
+---
 
-install.packages("signal")
-install.packages("tidyverse") #contient notamment ggplot2, dplyr
-install.packages("lubridate")
-install.packages("forecast")
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
+
+## Importation
+
+```{r}
+rm(list=ls())
 
 library(signal)
 library (tidyverse)
@@ -16,18 +22,23 @@ library(forecast)
 library(pracma)
 
 # DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
-# et choisir le dossier "\Garch_Model_Assets"
+```
 
-#---------------Import et transformation des données--------------
+```{r}
 source(file = "./data_preparation.R",local= TRUE)
 data = read.csv("./CAC40_15_19.csv") #fichier csv de Yahoo finance
-data = transform_csv(data)
+data <- transform_csv(data)
 
 #Premiers graphiques - statistiques descriptives
 plot_series_temp(data)
 autocorrelations(data)
+```
 
-#--------------- Conditions de stationnarité ---------------------
+# Script R
+
+## I. Condition de stationnarité
+
+```{r}
 source(file= "./condition_stationnarite.R",local=TRUE)
 
 # Définition des lois normalisées pour les eta qu'on veut tester
@@ -36,9 +47,11 @@ rt_8_normalisee <-function(n){return(rt(n,8)/sqrt(8/(8-2)))} # Loi de Student à
 
 # Affichage et sauvergarde (dans le dossier "Graphiques_pour_Latex") du graphique qui contient les courbes de condition de stationnarité pour les 3 lois spécifiées
 superposition_3graphiques_condi_statio(condition_stationnarite(rnorm),condition_stationnarite(runif_normalisee),condition_stationnarite(rt_8_normalisee))
+```
 
+## II. QML
 
-#----------------------------QML----------------------------------------
+```{r}
 source(file= "./QML_Variance.R",local=TRUE)
 
 #paramètres initiaux
@@ -75,9 +88,13 @@ QML(eps2_cac)
 
 #tests d'invariance de alpha et beta
 QML(1000*eps2_cac)
+```
 
+## III. Résultats asymptotiques
 
-#---------------matrice de variance asymptotique-------------
+### Matrice de variance asymptotique
+
+```{r}
 omega_0 <- 0.001
 alpha_0 <- 0.12
 beta_0 <- 0.83
@@ -105,8 +122,11 @@ c(sd(res$omega),sd(res$alpha),sd(res$beta))
 #matrice de variance asymptotique sur le cac40
 eps2_cac = data$rendement2[1:500]
 var_asymp(eps2_cac)
+```
 
-#----------------normalité asymptotique----------------------
+### Normalité asymptotique
+
+```{r}
 n = 10**3
 res = matrix(0,n,3)
 V = matrix(0,3,3)
@@ -133,19 +153,18 @@ plot(xx[2:51],y_hat,col="red",type='o')
 lines(xx,y)
 
 ks.test(res$alpha,"pnorm",mean=0, sd=sd_hat)
+```
 
-#--------------- Puissance du test --------------------
-# Pas le calcul de la puissance du test, 
-# mais vérification pour des cas précis que le test rejette bien 
-# source(file="./simulation_series.R")
+## IV. Backtest
 
+### Backtest sur les rendements
 
-
-#-----------------------backtest----------------------
-
+```{r}
 source(file= "./prevision.R",local=TRUE)
 source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
+```
 
+```{r}
 #a) rendements
 
 theta_0 = c(10**(-4),0.12,0.83)
@@ -207,10 +226,11 @@ ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps_cac)) + geom_line(color='b
   geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds_emp), color='green') + 
   geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds_emp), color='green')  
 
+```
 
+### Backtest sur les carrés des rendements
 
-#b) carré des rendements
-
+```{r}
 #série simulée
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
@@ -254,12 +274,13 @@ res_for_plot$eps2 = eps2_cac[l2:length(eps2_cac)]
 res_for_plot$abs= xx
 ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
   geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')
+```
 
+### Test de la puissance du test utilisé pour les backtests
 
+#### i. Puissance du test pour un changement de la loi des etas
 
-#c) test de la puissance 
-
-# i. changement de la loi des etas
+```{r}
 
 theta = c(10**(-3),0.12,0.83)
 eps2_0 = 0 
@@ -303,16 +324,19 @@ ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue
   geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds_emp), color='green')+
   geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds_emp), color='green')
 
+```
 
-# ii. Changement des paramètres de GARCH(1,1)
+#### ii. Puissance du test pour un changement des paramètres d'un GARCH(1,1)
 
+```{r}
 source(file="./puissance_test_chgtGARCH.R")
 
 puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
+```
 
+## V. Comparaison de modèles
 
-#----------------------Test de Mariano--------------------------
-
+```{r}
 source(file="./comparison_model.R")
 source(file= "./QML_Variance.R",local=TRUE)#si pas déjà importé
  
@@ -349,4 +373,4 @@ for(i in 1:100){
   if(t$statistic<0 & t$p.value<0.001){cpt = cpt+1}}
 
 print(cpt) #nb de fois où Garch "l'emporte" (avec un niveau à 0.1%) sur 100 simulations
-
+```
