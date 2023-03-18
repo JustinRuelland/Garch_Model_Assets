@@ -77,7 +77,7 @@ database_erstellung_prediction <- function(serie, lag.max){
     current <- i + lag.max - 1
     first <- current
     last <- current - lag.max + 1
-    data_matrix_X[i,2:nb_col] <- serie[first,last]
+    data_matrix_X[i,2:nb_col] <- serie[first:last]
   }
   colnames(data_matrix_X) <- colname_erstellung_prediction(lag.max)
   
@@ -100,11 +100,51 @@ summary(OLS_spurious)
 #------- OLS prediction ------- 
 
 OLS_prediction <- function(train_set, evaluate_set, lag.max){
+  #DF Train Construction + Training
   df_design <- database_erstellung(train_set, lag.max)
   Y <- as.matrix(df_design$Y)
   X <- as.matrix(df_design[colnames(df_design) != "Y"])
   OLS_spurious <- lm(Y ~ X)
   
+  #DF Test Construction 
+  df_design_train <- database_erstellung_prediction(evaluate_set, lag.max)
+  X_test <- as.matrix(df_design_train)
+  
+  #Prediction
+  prediction <- X_test %*% OLS_spurious$coefficients
+  
+  return(prediction)
 }
+
+
+#------ ?Unit? Test OLS_prediction -----
+
+# Test on the DAXX of the prediction + graph 
+# /!\ The prediction at this state is only for
+# horizon 1 and for the naive OLS /!\
+
+
+df <- as.data.frame(cbind(1:length(eps_square),eps_square))
+colnames(df) <- c("Date","ReturnSquare")
+
+#cut for the test/train 
+#the cut is use to train, but the test set contains some train parts that are used as variables/predicators
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
