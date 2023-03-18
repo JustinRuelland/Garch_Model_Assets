@@ -2,6 +2,7 @@ rm(list=ls())
 setwd(dir = "/Users/justinr/Documents/2A/Stat App/Github/Garch_Model_Assets/Code_Justin_R/Code_R_v2")
 library(ggplot2)
 library(dplyr)
+library(forecast)
 
 source(file="./../../simulation_series.R",local=TRUE)
 source(file="./../../QML_Variance.R",local=TRUE)
@@ -128,22 +129,65 @@ df <- as.data.frame(cbind(1:length(eps_square),eps_square))
 colnames(df) <- c("Date","ReturnSquare")
 
 #cut for the test/train 
-#the cut is use to train, but the test set contains some train parts that are used as variables/predicators
+#the cut is use to train, but the test set contains some train parts that are used as variables/predictors
+
+cut <- 0.75 #in proportion of the set length
+lag.max <- 40
+
+end_train <- floor(0.75*length(df$ReturnSquare))
+start_test <- end_train + 1 - lag.max
+end_test <- length(df$ReturnSquare)
+real_start <- start_test + lag.max
+
+eps_train <- df$ReturnSquare[1:end_train]
+eps_test <- df$ReturnSquare[start_test:end_test]
+eps_real <- df$ReturnSquare[real_start:end_test]
+
+eps_predicted <- OLS_prediction(eps_train, eps_test, lag.max)
+
+#We drop the last one predicted because we don't have the true one to compare
+
+eps_predicted <- eps_predicted[1:(length(eps_predicted)-1)]
+
+#Displaying comparison 
+
+#Mean of the set to have a compare to a very naive
+eps_mean <- rep(mean(eps_train), length(eps_real))
+
+df_display <- as.data.frame(cbind(1:length(eps_real), eps_real, eps_predicted, eps_mean))
+colnames(df_display) <- c("Dates", "Real", "OLS_Prediction", "Mean")
+
+disp <- ggplot(data=df_display, aes(x = Dates)) + geom_line(aes(y=Real), color="blue") + geom_line(aes(y=OLS_Prediction), color='cyan') + geom_line(aes(y=Mean), color="red")  
+disp
+
+#Test DM vs Garch
+
+source(file="./../../comparison_model.R",local=TRUE)
+
+# GARCH prediction horizon 1
+
+pred_h1_garch_modified <- function(eps2,cut){
+  
+  n = length(eps2)
+  n_cut = floor(n*cut)
+  
+  theta =  QML(eps2[1:n_cut])
+  pred = double(n-n_cut+1)
+  init = theta[1]/(1-theta[2]-theta[3])
+  #pred[1] = func_sigma2(n_cut,init,eps2[1:n_cut],theta)
+  pred[1] <- simu_sigma2(eps2[1:n_cut],theta)[n_cut]
+  
+  l = n-n_cut+1
+  for(i in 2:l){
+    pred[i] = theta[1]+theta[2]*eps2[n_cut+i-2]+theta[3]*pred[i-1]}
+  return(pred[2:l+1])
+}
 
 
+eps_garch <- pred_h1_garch_modified(eps_square, cut)
 
 
-
-
-
-
-
-
-
-
-
-
-
+test_mariano(eps_garch, eps_predicted, eps_real, hor = 1)
 
 
 
