@@ -28,7 +28,9 @@ autocorrelations_korrigieren <-function(data){
 autocorrelations_korrigieren(data_real)
 # On identifie une baisse de correlation au dela de 40
 
-# Creation du database
+#------- Creation du database -------  
+
+# Tools functions for naming columns
 
 colname_erstellung <- function(lag.max){
   naming <- as.character(1:lag.max)
@@ -37,6 +39,13 @@ colname_erstellung <- function(lag.max){
   }
   return(naming)
 }
+
+colname_erstellung_prediction <- function(lag.max){
+  naming <- "Intercept"
+  return(c(naming, colname_erstellung(lag.max)))
+}
+
+# Tools functions for creating df
 
 database_erstellung <- function(serie, lag.max){
   taille <- length(serie)
@@ -60,12 +69,23 @@ database_erstellung <- function(serie, lag.max){
 
 database_erstellung_prediction <- function(serie, lag.max){
   taille <- length(serie)
+  nb_ligne <- taille - lag.max + 1
+  nb_col <- lag.max + 1
+  data_matrix_X <- matrix(NA, ncol = nb_col, nrow = nb_ligne)
+  data_matrix_X[,1] <- rep(1, nb_ligne)
+  for(i in 1:nb_ligne){
+    current <- i + lag.max - 1
+    first <- current
+    last <- current - lag.max + 1
+    data_matrix_X[i,2:nb_col] <- serie[first,last]
+  }
+  colnames(data_matrix_X) 
 }
 
 # Enregistrement design matrix
 df_design <- database_erstellung(eps_square, 40)
 
-# OLS
+# OLS testing
 
 Y <- as.matrix(df_design$Y)
 X <- as.matrix(df_design[colnames(df_design) != "Y"])
@@ -74,7 +94,7 @@ OLS_spurious <- lm(Y ~ X)
 summary(OLS_spurious) 
 
 
-# OLS prediction 
+#------- OLS prediction ------- 
 
 OLS_prediction <- function(train_set, evaluate_set, lag.max){
   df_design <- database_erstellung(train_set, lag.max)
