@@ -79,7 +79,10 @@ database_erstellung_prediction <- function(serie, lag.max){
     last <- current - lag.max + 1
     data_matrix_X[i,2:nb_col] <- serie[first,last]
   }
-  colnames(data_matrix_X) 
+  colnames(data_matrix_X) <- colname_erstellung_prediction(lag.max)
+  
+  df <- as.data.frame(data_matrix_X)
+  return(df)
 }
 
 # Enregistrement design matrix
