@@ -31,7 +31,7 @@ autocorrelations_korrigieren(data_real)
 # Creation du database
 
 colname_erstellung <- function(lag.max){
-  naming <- as.character(lag.max:1)
+  naming <- as.character(1:lag.max)
   for(i in 1:lag.max){
     naming[i] <- paste(naming[i], "lag")
   }
@@ -58,6 +58,9 @@ database_erstellung <- function(serie, lag.max){
   return(df)
 }
 
+database_erstellung_prediction <- function(serie, lag.max){
+  taille <- length(serie)
+}
 
 # Enregistrement design matrix
 df_design <- database_erstellung(eps_square, 40)
@@ -76,4 +79,9 @@ summary(OLS_spurious)
 OLS_prediction <- function(train_set, evaluate_set, lag.max){
   df_design <- database_erstellung(train_set, lag.max)
   Y <- as.matrix(df_design$Y)
+  X <- as.matrix(df_design[colnames(df_design) != "Y"])
+  OLS_spurious <- lm(Y ~ X)
+  
 }
+
+
