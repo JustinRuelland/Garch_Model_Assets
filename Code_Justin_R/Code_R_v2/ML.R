@@ -62,4 +62,18 @@ database_erstellung <- function(serie, lag.max){
 # Enregistrement design matrix
 df_design <- database_erstellung(eps_square, 40)
 
+# OLS
 
+Y <- as.matrix(df_design$Y)
+X <- as.matrix(df_design[colnames(df_design) != "Y"])
+OLS_spurious <- lm(Y ~ X)
+
+summary(OLS_spurious) 
+
+
+# OLS prediction 
+
+OLS_prediction <- function(train_set, evaluate_set, lag.max){
+  df_design <- database_erstellung(train_set, lag.max)
+  Y <- as.matrix(df_design$Y)
+}
