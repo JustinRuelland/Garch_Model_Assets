@@ -179,8 +179,12 @@ pred_h1_garch_modified <- function(eps2,cut){
   
   l = n-n_cut+1
   for(i in 2:l){
-    pred[i] = theta[1]+theta[2]*eps2[n_cut+i-2]+theta[3]*pred[i-1]}
-  return(pred[2:l+1])
+    pred[i] = theta[1]+theta[2]*eps2[n_cut+i-2]+theta[3]*pred[i-1]
+    if(is.na(pred[i])){
+      cat("NA appear at",i)
+    }
+    }
+  return(pred[1:(l-1)])
 }
 
 
@@ -190,5 +194,24 @@ eps_garch <- pred_h1_garch_modified(eps_square, cut)
 test_mariano(eps_garch, eps_predicted, eps_real, hor = 1)
 
 
+RMSE <- function(estimation, truth){
+  n <- length(estimation)
+  if(n != length(truth)){
+    return(-1)
+  }
+  return(sqrt(mean((estimation-truth)**2)))
+}
 
+# Display
+df_display <- as.data.frame(cbind(1:length(eps_real), eps_real, eps_predicted, eps_mean, eps_garch))
+colnames(df_display) <- c("Dates", "Real", "OLS_Prediction", "Mean", "GARCH")
 
+disp <- ggplot(data=df_display, aes(x = Dates)) + geom_line(aes(y=Real), color="blue") + geom_line(aes(y=OLS_Prediction), color='cyan') + geom_line(aes(y=Mean), color="red") + geom_line(aes(y=GARCH), color="green")  
+disp
+# End of Display
+
+RMSE_garch <- RMSE(eps_garch, eps_real)
+RMSE_ols <- RMSE(eps_predicted, eps_real)
+
+RMSE_garch
+RMSE_ols
