@@ -33,7 +33,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
   
   test_for_alphabeta <- function(alpha_beta){
     rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,c(alpha_beta))),cut_chgt,etas = loi_eta(n))
-    p_val = func_backtest(rendements,-1.96,1.96,0.8,FALSE)$p.value #0.8 : le cut est à 80% des données
+    p_val = func_backtest(rendements,-1.96,1.96,0.8,TRUE)$p.value #0.8 : le cut est à 80% des données
     return(p_val)
   }
   
@@ -78,7 +78,9 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
 
 ### Exemple
 # source(file = "./white_noise_laws.R",local= TRUE)
-# puissance_test_chgtGARCH(0.8,10,1000,loi_eta = normalised_student) # ne pas mettre plus de n = 3000, sinon bug sur valeurs initiales dans fonction optim
+
+#source(file = "./white_noise_laws.R",local=TRUE)
+#puissance_test_chgtGARCH(0.8,10,1000,loi_eta = rnorm)
 
 # Rprof(NULL)
 # summaryRprof()
