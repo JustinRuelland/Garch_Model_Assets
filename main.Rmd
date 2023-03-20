@@ -3,10 +3,6 @@ title: "R Notebook - Stat'App main"
 output: html_notebook
 ---
 
-This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code.
-
-Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*.
-
 ## Importation
 
 ```{r}
@@ -33,6 +29,8 @@ data <- transform_csv(data)
 plot_series_temp(data)
 autocorrelations(data)
 ```
+
+La fonction d'autocorrélation des rendements donne de bien meilleures illustrations pour la série du DAX sur 20 ans que la série du CAC40 sur quelques années.
 
 # Script R
 
@@ -328,7 +326,12 @@ ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue
 ```{r}
 source(file="./puissance_test_chgtGARCH.R")
 
-puissance_test_chgtGARCH(0.4,10,1000) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
+suppressWarnings(puissance_test_chgtGARCH(0.8,10,1000)) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
+```
+
+```{r}
+source(file="./study_alpha-beta_constant_sum.R",local=TRUE)
+
 ```
 
 ## V. Comparaison de modèles
