@@ -85,8 +85,12 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   p
   ggsave("Study_alpha2 = xx.png",width=10,height=5,path="./Graphiques_pour_Latex/Study_ab_constant_sum/")
   
-  print(paste0("Moyenne sans changement : ",mean(sigma1_hat[n_cut:n])))
-  print(paste0("Moyenne avec changement :",mean(sigma2_hat[n_cut:n])))
+  
+  print(paste0("Moyenne des sigma2 réels sans changement : ",mean(sigma1[n_cut:n])))
+  print(paste0("Moyenne des sigma2 réels avec changement : ",mean(sigma2[n_cut:n])))
+  print("")
+  print(paste0("Moyenne des sigma2 estimés sans changement : ",mean(sigma1_hat[n_cut:n])))
+  print(paste0("Moyenne des sigma2 estimés avec changement : ",mean(sigma2_hat[n_cut:n])))
 
   
   return(p)
