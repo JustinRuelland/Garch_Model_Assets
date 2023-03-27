@@ -17,6 +17,8 @@ source(file= "./prevision.R", local=TRUE)
 
 #alpha2 must be included in [0,0,97] (0.97 = alpha1+beta1)
 sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
+  #--------------- initialisation des paramètres -----------------------
+  
   # theta1 et theta2 font ici référence aux deux theta étudiés pour la deuxième partie
 
   cut = 0.8 #cut du backtest ET du changement de GARCH
@@ -35,17 +37,19 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   eps_1 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta0, theta_2 = theta1, cut = cut, etas = etas)
   eps_2 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta0, theta_2 = theta2, cut = cut, etas = etas)
   
-  
-  courbe_prix_arg_rendements(eps_1)
-  courbe_prix_arg_rendements(eps_2)
+  # Affichage des coubres de prix
+  print(courbe_prix_arg_rendements(eps_1))
+  print(courbe_prix_arg_rendements(eps_2))
   
   #--------------------- STUDY -------------------
-  pval_1 = func_backtest(eps_1,-1.96,1.96,empirical = FALSE, cut = 0.8)$p.val #Remarque : le QML est refait dans la fonction
+  # Calcul des p-valeurs (pour comprendre - à ENLEVER à TERME)
+  pval_1 = func_backtest(eps_1,-1.96,1.96,empirical = FALSE, cut = 0.8)$p.val
   pval_2 = func_backtest(eps_2,-1.96,1.96,empirical = FALSE, cut = 0.8)$p.val
   
   print(pval_1)
   print(pval_2)
   
+  # Estimations
   n_cut = floor(cut*n)
   theta1_hat = QML(eps_1[1:n_cut]**2)
   theta2_hat = QML(eps_2[1:n_cut]**2)
@@ -57,7 +61,7 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   sigma1 = eps_1**2/etas**2
   sigma2 = eps_2**2/etas**2
   
-  # Affichages - que de n_cut à n -> test set du backtest
+  # Création du graphique final (que de n_cut à n -> test set du backtest)
   window = n_cut:900
   
   df = cbind(Date = window,sigma1_hat[window],sigma2_hat[window])
@@ -88,9 +92,6 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   return(p)
   }
 
-sigma2_hat_alpha_beta_constant(alpha2 = 0.8, seed=16)
-
-# Comparaison des moyennes
-# m1 = mean(sigma1_hat[n_cut:n])
-# m2 = mean(sigma2_hat[n_cut:n])
-# print("blabl" + m1)
+sigma2_hat_alpha_beta_constant(alpha2 = 0.8, seed=31)
+# Problème : la moyenne des sigma2 (les vrais déjà !!) de la série 
+# avec changement est toujours environ la moitiée de la série sans changement
