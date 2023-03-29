@@ -3,6 +3,8 @@ setwd(dir = "/Users/justinr/Documents/2A/Stat App/Github/Garch_Model_Assets/Code
 library(ggplot2)
 library(dplyr)
 library(forecast)
+library(keras)
+library(tensorflow)
 
 source(file="./../../simulation_series.R",local=TRUE)
 source(file="./../../QML_Variance.R",local=TRUE)
@@ -14,6 +16,11 @@ source(file="./../../data_preparation.R",local=TRUE)
 data_real <- read.csv("./../../^GDAXI.csv") #fichier csv de Yahoo finance
 data_real <- transform_csv(data_real)
 
+eps_2 <- simulation_rendements(n = 2000, theta = c(0.00001,0.1,0.85))**2
+
+QML(eps_2)
+
+eps_square <- eps_2
 eps_square <- data_real$rendement2
 
 # Dropping na
@@ -184,7 +191,7 @@ pred_h1_garch_modified <- function(eps2,cut){
       cat("NA appear at",i)
     }
     }
-  return(pred[1:(l-1)])
+  return(pred[2:l])
 }
 
 
@@ -215,3 +222,50 @@ RMSE_ols <- RMSE(eps_predicted, eps_real)
 
 RMSE_garch
 RMSE_ols
+
+
+#OLS lasso pour la suite
+
+# Deep Learning 
+
+# Construction of a model of deep learning with Keras API, sequential NN => first layer with 20 units and relu activation => second layer 10 units and relu activation => last layer 1 units with relu
+
+df_train <- database_erstellung(eps_train, 40)
+X_train <- as.matrix(df_train[colnames(df_train) != "Y"])
+Y_train <- as.matrix(df_train$Y)
+
+df_test <- database_erstellung(eps_test, 40)
+X_test <- as.matrix(df_test[colnames(df_test) != "Y"])
+Y_test <- as.matrix(df_test$Y)
+
+nn_model <- keras_model_sequential()
+nn_model %>% 
+  layer_dense(units = 256, activation = "relu", input_shape = c(40)) %>%
+  layer_dropout(rate=0.8) %>%
+  layer_dense(units = 128, activation = "relu") %>%
+  layer_dropout(rate=0.8) %>%
+  layer_dense(units = 20, activation = "relu") %>%
+  layer_dropout(rate=0.5) %>%
+  layer_dense(units=1, activation = "linear")
+
+#nn_model %>%
+#  layer_dense(units = 1, activation="linear", input_shape = c(40))
+  
+nn_model %>% compile(loss='mean_squared_error', optimizer = optimizer_adam(), metrics=c('mean_squared_error', 'accuracy'))
+
+summary(nn_model)
+
+nn_model %>% fit(X_train, Y_train, epochs=100, batch_size=128, validation_split=0.2)
+
+#nn_model %>% evaluate(X_test, Y_test)
+
+#nn_model %>% predict(as.matrix(t(X[1,])))
+
+nn_prediction <- predict(object = nn_model, X_test)
+
+test_mariano(nn_prediction, eps_predicted, eps_real, hor = 1)
+test_mariano(nn_prediction, eps_garch, eps_real, hor = 1)
+
+RMSE(nn_prediction, eps_real)
+RMSE_ols
+RMSE_garch
