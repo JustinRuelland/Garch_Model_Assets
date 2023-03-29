@@ -37,4 +37,4 @@
     - n = 1000: nombres de jours de simulation
     - Remarque : on utilise les quantiles théoriques de la loi normale (donc +-1.96) pour faire le test
 
-Justin_branch
+
