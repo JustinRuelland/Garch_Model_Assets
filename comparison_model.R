@@ -28,3 +28,23 @@ rolling_av <- function(eps2,cut,wind,liss_exp){
   else{res = rollapply(eps2, width = wind, FUN = mean, align = "right", partial = TRUE)}
   e = length(res)-1
   return(res[n_cut:e])}
+
+
+
+
+HMM_Pred <- function(data_Train) {
+  a <- RHmm::HMMFit(data_Train, nStates=5, nMixt=4, dis="MIXTURE", control=list(iter=2000))
+  v <- RHmm::viterbi(a,data_Train)
+  return(sum(a$HMM$transMat[last(v$states),] * .colSums((matrix(unlist(a$HMM$distribution$mean), nrow=4,ncol=5)) * (matrix(unlist(a$HMM$distribution$proportion), nrow=4,ncol=5)), m=4,n=5)))
+}
+
+
+HMM_Pred_finale <- function(eps2, cut) {
+  n = length(eps2)
+  n_cut = floor(n*cut)
+  df <- data.frame(Col1 = double())
+  for(i in n_cut:n){
+    df[i+1,1] <- HMM_Pred(eps2[1:i])
+  }
+  return(df)
+}
