@@ -350,3 +350,30 @@ for(i in 1:100){
 
 print(cpt) #nb de fois où Garch "l'emporte" (avec un niveau à 0.1%) sur 100 simulations
 
+
+#----------------------Test de HMM--------------------------
+
+source(file="./comparison_model.R")
+source(file= "./QML_Variance.R",local=TRUE)#si pas déjà importé
+
+eps2 = data$rendement2
+n = length(eps2)
+n_cut = floor(0.8*n)
+cut = n_cut+1
+
+
+
+yy_garch = pred_h1_garch(eps2,0.8)
+yy_HMM = HMM_Pred_finale(eps2, 0.8)
+yy_HMM = yy_HMM[cut:n,1]
+
+e = n-n_cut
+s = n_cut+1
+res_for_plot = data.frame(abs = c(1:e), garch= yy_garch, HMM= yy_HMM, eps2 = eps2[s:n])
+ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=garch), color='red') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=HMM),color='green')
+
+test_mariano(yy_garch,yy_HMM,eps2[s:n],hor=1)
+
+
