@@ -6,7 +6,6 @@ install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
 install.packages("forecast")
 install.packages("C:/../Downloads/RHmm_2.0.2.tar.gz", repo=NULL, type="source", dependencies=TRUE)
-library(RHmm)
 
 library(signal)
 library (tidyverse)
