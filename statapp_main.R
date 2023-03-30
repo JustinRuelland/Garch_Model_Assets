@@ -5,6 +5,8 @@ install.packages("signal")
 install.packages("tidyverse") #contient notamment ggplot2, dplyr
 install.packages("lubridate")
 install.packages("forecast")
+install.packages("C:/../Downloads/RHmm_2.0.2.tar.gz", repo=NULL, type="source", dependencies=TRUE)
+library(RHmm)
 
 library(signal)
 library (tidyverse)
@@ -14,6 +16,7 @@ library(lubridate)
 library(zoo)
 library(forecast)
 library(pracma)
+library(RHmm)
 
 # DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
 # et choisir le dossier "\Garch_Model_Assets"
