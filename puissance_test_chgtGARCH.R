@@ -21,7 +21,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
   #n_path : nombres de trajectoires simulées pour chaque carré
   
   niveau_test = 0.05
-  theta1 = c(0.0001,0.12,0.85)
+  theta1 = c(0.0001,0.12,0.55)
   
   N = 30 #nombre de alphas
   M = 30 #nombre de betas 
@@ -80,7 +80,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm){
 # source(file = "./white_noise_laws.R",local= TRUE)
 
 #source(file = "./white_noise_laws.R",local=TRUE)
-#puissance_test_chgtGARCH(0.8,10,1000,loi_eta = rnorm)
+puissance_test_chgtGARCH(0.8,5,1000,loi_eta = rnorm)
 
 # Rprof(NULL)
 # summaryRprof()

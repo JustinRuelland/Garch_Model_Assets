@@ -21,11 +21,11 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   
   # theta1 et theta2 font ici référence aux deux theta étudiés pour la deuxième partie
 
-  cut = 0.8 #cut du backtest ET du changement de GARCH
+  cut = 0.7 #cut du backtest ET du changement de GARCH
   
   omega = 0.0001
   
-  theta0 = c(omega, 0.12, 0.85)
+  theta0 = c(omega, 0.12, 0.55)
   
   theta1 = theta0
   theta2 = c(omega,alpha2,theta1[2]+theta1[3]-alpha2)
@@ -62,7 +62,7 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   sigma2 = eps_2**2/etas**2
   
   # Création du graphique final (que de n_cut à n -> test set du backtest)
-  window = n_cut:900
+  window = n_cut:n
   
   df = cbind(Date = window,sigma1_hat[window],sigma2_hat[window])
   df = as.data.frame(df)
@@ -91,11 +91,18 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8){
   print("")
   print(paste0("Moyenne des sigma2 estimés sans changement : ",mean(sigma1_hat[n_cut:n])))
   print(paste0("Moyenne des sigma2 estimés avec changement : ",mean(sigma2_hat[n_cut:n])))
-
+  
+  
+  # TESTSSS
+  plot(eps_1**2)
+  plot(eps_2**2)
+  print(mean(eps_1[window]**2))
+  print(mean(eps_2[window]**2))
+  print(theta1_hat)
   
   return(p)
   }
 
-sigma2_hat_alpha_beta_constant(alpha2 = 0.8, seed=31)
+sigma2_hat_alpha_beta_constant(alpha2 = 0.5, seed=3012, n = 10000)
 # Problème : la moyenne des sigma2 (les vrais déjà !!) de la série 
 # avec changement est toujours environ la moitiée de la série sans changement
