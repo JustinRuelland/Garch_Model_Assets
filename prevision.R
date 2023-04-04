@@ -40,7 +40,85 @@ func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
 
   return(res)}
 
+#func_backtest <- function(eps,q_inf,q_sup,cut,empirical){
+  
+  n = length(eps)
+  n_cut = floor(cut*n)
+  eps2 = eps**2
+  
+  #QML, on s'attend à ce que la fonction ait été importée
+  theta = QML(eps2[c(1:n_cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
+  sigma2 = simu_sigma2(eps2,theta) #estimation des sigma2 à partir des epsilon2 passés
+  sigma = sqrt(sigma2)
+  eta_quantile = eps[1:n_cut]/sigma[1:n_cut]
+  
+  #tests intervalle de confiance
+  n_cut = n_cut+1
+  eps_test = eps[n_cut:n]
+  sigma_test = sigma[n_cut:n]
+  
+  
+  if(empirical==FALSE){
+    upper = q_sup*sigma_test
+    lower = q_inf*sigma_test}
+  else{
+    upper = quantile(x=eta_quantile,prob=0.975)*sigma_test
+    lower = quantile(x=eta_quantile,prob=0.025)*sigma_test}
+  
+  outside = length(eps_test[(eps_test>upper)|(eps_test<lower)])
+  inside = n - n_cut + 1 -outside
+  
+  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
+  obs = c(outside,inside) #effectifs observés
+  proba = c(0.05,0.95) #probabilités théoriques
+  
+  res = matrix(0,ncol=3)
+  colnames(res) = c("p.value","upper.bounds","lower.bounds")
+  res$p.value = chisq.test(obs,p=proba)$p.value
+  res$upper.bounds = upper
+  res$lower.bounds = lower
+  
+  return(res)
+}
+
 #hypothèse: les etas suivent une loi normale
+backtest_square_modified <-function(eps2,q_inf, q_sup, cut, empirical){
+  
+  n = length(eps2)
+  n_cut = floor(cut*n)
+  theta = QML(eps2[c(1:n_cut)]) #estimation de theta par QML sur les données jusqu'au "cut"
+  sigma2_hat = simu_sigma2(eps2,theta)
+  
+  n_cut = n_cut+1
+  eps2_test = eps2[n_cut:n]
+  sigma2_test = sigma2_hat[n_cut:n]
+  
+  if(empirical == F){
+    upper <- qchisq(0.975,df=1)*sigma2_test
+    lower <- qchisq(0.025, df=1)*sigma2_test
+  }else{
+    etas_square <- eps2[1:n_cut]/sigma2_hat[1:n_cut]
+    upper <- quantile(etas_square, prob = 0.975)*sigma2_test
+    lower <- quantile(etas_square, prob = 0.025)*sigma2_test
+  }
+  
+  outside = length(eps2_test[(eps2_test>upper)|(eps2_test<lower)])
+  inside = n - n_cut + 1 -outside
+  
+  
+  #test d'adéquation du khi2 sur les Bernoulli (paramètre 0.95)
+  obs = c(outside,inside) #effectifs observés
+  proba = c(0.05,0.95) #probabilités théoriques
+  
+  res = matrix(0,ncol=2)
+  colnames(res) = c("p.value","upper.bounds")
+  res$p.value = chisq.test(obs,p=proba)$p.value
+  res$upper.bounds = upper
+  
+  return(res)
+}
+
+
 backtest_square <-function(eps2,cut){
   
   n = length(eps2)
