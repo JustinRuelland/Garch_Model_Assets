@@ -13,22 +13,30 @@ sigma2_hat_alpha_beta_constant(alpha2=0.9, n=1000,seed = 8, alpha_diff_sum = 0.0
 ```
 
 ```{r}
-sigma2_hat_alpha_beta_constant(alpha2=0.9, n=1000000, seed = 8, alpha_diff_sum = 0.01, beta_diff_sum = 0.97)
+sigma2_hat_alpha_beta_constant(alpha2=0.9, n=1000000, seed = 31, alpha_diff_sum = 0.01, beta_diff_sum = 0.97)
 
 ```
 
-Pour seed = 8 :
+**Tableau des moyennes pour alpha+beta=0.85** (Unité = $10^{-3}$)
 
-
-
-Tableau des moyennes pour alpha+beta=0.85 (Unité = $10^{-3}$)
+(Pour seed = 8)
 
 | n            | $10^3$ | $10^4$ | $10^5$ | $10^6$ |
 |--------------|--------|--------|--------|--------|
-| alpha = 0.12 | 29     | 31     | 34     |  33      |
-| alpha = 0.9  | 6      | 9      | 10     |   17     |
+| alpha = 0.12 | 29     | 31     | 34     | 33     |
+| alpha = 0.9  | 6      | 9      | 10     | 17     |
 |              |        |        |        |        |
 
 Vraie moyenne = 33
 
+**Tableau des moyennes pour alpha+beta=0.85** (Unité = $10^{-3}$)
 
+(Pour seed = 31)
+
+| n            | $10^3$ | $10^4$ | $10^5$ | $10^6$ |
+|--------------|--------|--------|--------|--------|
+| alpha = 0.12 | 43     | 33     | 34     | 33     |
+| alpha = 0.9  | 8      | 8      | 15     |        |
+|              |        |        |        |        |
+
+Vraie moyenne = 33
