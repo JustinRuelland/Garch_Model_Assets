@@ -22,7 +22,7 @@ puissance_test_chgtGARCH<-function(cut_chgt=0.4,n_path=10,n=1000,loi_eta=rnorm, 
   #n_path : nombres de trajectoires simulées pour chaque carré
   
   niveau_test = 0.05
-  theta1 = c(0.0001,0.12,0.55)
+  theta1 = c(0.0001,0.12,0.85)
   
   N = 30 #nombre de alphas
   M = 30 #nombre de betas 
