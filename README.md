@@ -38,10 +38,10 @@
     - Remarque : on utilise les quantiles théoriques de la loi normale (donc +-1.96) pour faire le test
     - backtest : spécifie la fonction de backtest qu'on utilise (du fichier prevision.R)
 
-  - Fichier **study_alpha-beta_constant_sum.R** :
-    - *sigma2_hat_alpha_beta_constant* : le but de cette fonction est d'afficher quelques éléments autour d'une simulation pour un changement de GARCH avec $\alpha+\beta$ constant. En particulier, ça affiche :
-      - quelques statistiques sur les trajectoires
-      - courbe des prix des cas avec et sans changement de GARCH
-      - graphe des simga2 réels sur la période $0.8 n$ à $n$ (contient aussi un changement GARCH hors de la droite $\alpha+\beta$ constant)
-      - graphe des $\sigma^2$ et des $\hat{\sigma}^2 estimés sur la période $0.8 n$ à $n$
+- Fichier **study_alpha-beta_constant_sum.R** :
+  - *sigma2_hat_alpha_beta_constant* : le but de cette fonction est d'afficher quelques éléments autour d'une simulation pour un changement de GARCH avec $\alpha+\beta$ constant. En particulier, ça affiche :
+    - quelques statistiques sur les trajectoires
+    - courbe des prix des cas avec et sans changement de GARCH
+    - graphe des simga2 réels sur la période $0.8 n$ à $n$ (contient aussi un changement GARCH hors de la droite $\alpha+\beta$ constant)
+    - graphe des $\sigma^2$ et des $\hat{\sigma}^2 estimés sur la période $0.8 n$ à $n$
   - *test_puissance_changment_horizon_long* : pour montrer que y'a effectivement plus de rejets même sur la droite $\alpha+\beta$ constant lorsque la période est plus grande
