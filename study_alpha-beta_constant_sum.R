@@ -109,12 +109,15 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
   df_sigma2 = as.data.frame(cbind(Date = window, sigma2[window]))
   df_sigma3 = as.data.frame(cbind(Date = window, sigma3[window]))
   
-  df_ggplot_reel = bind_rows("Réel sans changement"=df_sigma1,"Réel avec changement"=df_sigma2,"Réel avec changement hors de la droite"=df_sigma3, .id = "Courbes")
-  plot_reel = ggplot(df_ggplot_reel) + geom_line(aes(x = Date, y=V2, color= Courbes))+ ylab("Sigma carré") +ggtitle("Graphe des sigma2 réel")
+  df_ggplot_reel = bind_rows("sans changement"=df_sigma1,"avec changement"=df_sigma2,"avec changement hors\n de la droite"=df_sigma3, .id = "Courbes")
+  plot_reel = ggplot(df_ggplot_reel) + geom_line(aes(x = Date, y=V2, color= Courbes))+ ylab("Sigma carré") +ggtitle("Graphe des sigma2 réels")
+  ggsave("Graphe_sigma2 réels.png",width=10,height=5,path="./Graphiques_pour_Latex/Study_ab_constant_sum/")
   
   print(plot_reel)
   return(p)
 }
+
+sigma2_hat_alpha_beta_constant()
 
 
 moyenne <-function (n=1000){
