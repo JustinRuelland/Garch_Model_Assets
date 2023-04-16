@@ -129,7 +129,31 @@ moyenne <-function (n=1000){
   
 }
 
-
-#sigma2_hat_alpha_beta_constant(alpha2 = 0.8, seed=310, n = 1000)
-# Problème : la moyenne des sigma2 (les vrais déjà !!) de la série 
-# avec changement est toujours environ la moitiée de la série sans changement
+test_puissance_changment_horizon_long <- function (n=10000){ # le but de cette fonction est de confirmé que la droite sur la "carte bleue" provient d'une vitesse de convergence faible
+  loi_eta = rnorm
+  
+  # Paramètres GARCH
+  theta1 = c(0.0001,0.12,0.85)
+  alpha_chgt = 0.9
+  beta_chgt = theta1[2]+theta1[3]-alpha_chgt
+  
+  # Paramètres tests
+  niveau_test = 0.05
+    
+  test_chgt <- function(){
+    rendements = simulation_rendements_avec_changement_GARCH(n,theta1,unlist(c(0.0001,alpha_chgt,beta_chgt)),0.8,etas = loi_eta(n))
+    p_val = func_backtest(rendements,-1.96,1.96,0.8,TRUE)$p.value
+    return(p_val)
+  }
+  
+  n_path = 100
+  sum = 0
+  for(i in 1:n_path){
+    if(test_chgt()<niveau_test){
+      sum = sum + 1
+    }
+    
+  }
+  
+  return(sum/n_path)
+}
