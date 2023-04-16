@@ -129,7 +129,7 @@ moyenne <-function (n=1000){
   
 }
 
-test_puissance_changment_horizon_long <- function (n=10000){ # le but de cette fonction est de confirmé que la droite sur la "carte bleue" provient d'une vitesse de convergence faible
+test_puissance_changment_horizon_long <- function (n=10000, alpha_chgt = 0.9){ # le but de cette fonction est de confirmé que la droite sur la "carte bleue" provient d'une vitesse de convergence faible
   loi_eta = rnorm
   
   # Paramètres GARCH
