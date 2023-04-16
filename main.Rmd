@@ -327,12 +327,69 @@ ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue
 source(file="./puissance_test_chgtGARCH.R")
 
 suppressWarnings(puissance_test_chgtGARCH(0.8,10,1000)) #Affiche la "carte bleue" - cela prend 5 à 10min avec ces paramètres
+
 ```
+
+Pour essayer de mieux comprendre cette droite de non-rejet, on s'est intéressé à un changement de GARCH particulier. On garde $\theta_1=(10^{-4},0.12,0.85)$ pour le paramètre initial et on se fixe maintenant $\theta_2=(10^{-4}, 0.9, 0.07)$ pour le second paramètre du changement.
+
+```{r}
+source(file = "./study_alpha-beta_constant_sum.R", local=TRUE)
+
+sigma2_hat_alpha_beta_constant(alpha2=0.9, n=1000,seed = 8, alpha_diff_sum = 0.01, beta_diff_sum = 0.97)
+
+```
+
+Construction des simulations : on simule 1000 $\eta$. Pour les 800 premiers jours, même paramètres $\theta$ du GARCH. A partir du 800ème, changement ou non de GARCH. On peut voir sur les deux premiers graphiques les deux évolutions de prix en fonction du changement de GARCH ou non (sur les 800 premiers jours, les prix sont bien égaux).
+
+Sur le graphique "Graphe des sigma2 réels", on a observé que les $\sigma^2$ de l'échantillon avec et sans changement de GARCH semblaient ne pas avoir la même moyenne, alors qu'ils devaient avoir tous les deux $\frac{\omega}{1-\alpha-\beta}$ comme moyenne.
+
+En fait, ils ont bien la même moyenne, mais la convergence vers la moyenne est bien plus lente pour $\alpha$ grand et donc $\beta$ petit.
+
+\*\*Tableau des moyennes pour alpha+beta=0.85\*\* (Unité = \$10\^{-3}\$)
+
+(Pour seed = 8)
+
+\| n \| \$10\^3\$ \| \$10\^4\$ \| \$10\^5\$ \| \$10\^6\$ \|
+
+\|\-\-\-\-\-\-\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|
+
+\| alpha = 0.12 \| 29 \| 31 \| 34 \| 33 \|
+
+\| alpha = 0.9 \| 6 \| 9 \| 10 \| 17 \|
+
+Vraie moyenne = 33
+
+\*\*Tableau des moyennes pour alpha+beta=0.85\*\* (Unité = \$10\^{-3}\$)
+
+(Pour seed = 31)
+
+\| n \| \$10\^3\$ \| \$10\^4\$ \| \$10\^5\$ \| \$10\^6\$ \|
+
+\|\-\-\-\-\-\-\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|\-\-\-\-\-\-\--\|
+
+\| alpha = 0.12 \| 43 \| 33 \| 34 \| 33 \|
+
+\| alpha = 0.9 \| 8 \| 8 \| 15 \| 14 \|
+
+Vraie moyenne = 33
+
+On a donc finalement testé si pour une très longue durée, le test rejetait un changement de GARCH, qui était sur la droite $\alpha+\beta$ constante.
 
 ```{r}
 source(file="./study_alpha-beta_constant_sum.R",local=TRUE)
 
+options(warn=-1) # pour enlever les warnings
+
+print(paste0("Taux de rejet pour n=1000 jours (dont 200 jours de test): ", test_puissance_changment_horizon_long(10**3)))
+
+print(paste0("Taux de rejet pour n=10 000 jours (dont 2 000 jours de test): ", test_puissance_changment_horizon_long(10**4)))
+
+options(warn=0) # pour remettre les warnings
 ```
+
+On trouve alors bien 46% de rejet pour $n=10^3$ et 100% de rejet pour $n=10^4$.
+
+Cela confirme que cette droite apparaît pour une raison de convergence très lente.
 
 ## V. Comparaison de modèles
 
