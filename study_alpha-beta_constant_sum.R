@@ -117,8 +117,6 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
   return(p)
 }
 
-sigma2_hat_alpha_beta_constant()
-
 
 moyenne <-function (n=1000){
   
