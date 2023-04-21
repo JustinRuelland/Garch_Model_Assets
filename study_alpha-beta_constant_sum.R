@@ -118,15 +118,47 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
 }
 
 
-moyenne <-function (n=1000){
+moyennes_sigma2_in_test <-function (alpha_chgt = 0.9){
+  n_path = 5
+  cut = 0.8
   
-  set.seed(seed)
-  etas = rnorm(n)
+  omega = 0.0001
+  theta1 = c(omega, 0.12, 0.85)
+  theta2 = c(omega,alpha_chgt,0.97-alpha_chgt)
+
+  res = matrix(0, nrow = 2, ncol = 3)
+  rownames(res)=paste0("Changement",c("Faux","Vrai"))
+  colnames(res)=paste0("n=",seq(3,5))
   
-  eps_1 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta0, theta_2 = theta1, cut = cut, etas = etas)
-  eps_2 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta0, theta_2 = theta2, cut = cut, etas = etas)
   
-  return()
+  for(exp in seq(3,5)){
+    n = 10**exp
+    for(i in 1:n_path){
+      
+
+      etas = rnorm(n) #pour avoir les mêmes etas dans les deux simulations (avec ou sans changement)
+      
+      eps_1 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta1, theta_2 = theta1, cut = cut, etas = etas)
+      eps_2 = simulation_rendements_avec_changement_GARCH(n,theta_1 = theta1, theta_2 = theta2, cut = cut, etas = etas)
+      
+      n_cut = floor(cut*n)
+      theta1_hat = QML(eps_1[1:n_cut]**2)
+      theta2_hat = QML(eps_2[1:n_cut]**2)
+      
+      sigma1_hat = simu_sigma2(eps_1**2, theta=theta1_hat)
+      sigma2_hat = simu_sigma2(eps_2**2, theta=theta2_hat)
+      
+      sigma1 = eps_1**2/etas**2
+      sigma2 = eps_2**2/etas**2
+      
+      res[1,exp-2] =res[1,exp-2] + mean(sigma1[(0.8*n):n])
+      res[2,exp-2] =res[2,exp-2] + mean(sigma2[(0.8*n):n])
+    }
+  }
+  
+  res = res/n_path
+  
+  return(res)
   
 }
 
@@ -135,7 +167,6 @@ test_puissance_changment_horizon_long <- function (n=10000, alpha_chgt = 0.9){ #
   
   # Paramètres GARCH
   theta1 = c(0.0001,0.12,0.85)
-  alpha_chgt = 0.9
   beta_chgt = theta1[2]+theta1[3]-alpha_chgt
   
   # Paramètres tests
