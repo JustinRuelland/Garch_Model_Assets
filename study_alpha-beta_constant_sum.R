@@ -121,17 +121,18 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
 moyennes_sigma2_in_test <-function (alpha_chgt = 0.9){
   n_path = 5
   cut = 0.8
+  exp_max = 6
   
   omega = 0.0001
   theta1 = c(omega, 0.12, 0.85)
   theta2 = c(omega,alpha_chgt,0.97-alpha_chgt)
 
-  res = matrix(0, nrow = 2, ncol = 3)
+  res = matrix(0, nrow = 2, ncol = exp_max-2)
   rownames(res)=paste0("Changement",c("Faux","Vrai"))
-  colnames(res)=paste0("n=",seq(3,5))
+  colnames(res)=paste0("n=",seq(3,exp_max))
   
   
-  for(exp in seq(3,5)){
+  for(exp in seq(3,exp_max)){
     n = 10**exp
     for(i in 1:n_path){
       
