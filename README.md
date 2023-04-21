@@ -45,3 +45,5 @@
     - graphe des simga2 réels sur la période $0.8 n$ à $n$ (contient aussi un changement GARCH hors de la droite $\alpha+\beta$ constant)
     - graphe des $\sigma^2$ et des $\hat{\sigma}^2 estimés sur la période $0.8 n$ à $n$
   - *test_puissance_changment_horizon_long* : pour montrer que y'a effectivement plus de rejets même sur la droite $\alpha+\beta$ constant lorsque la période est plus grande
+  - moyennes_sigma2_in_test(alpha_chgt = 0.9) : renvoie un tableau des moyennes des sigma carré dans du test set pour un changement de GACH ou sans changement, pour différentes valeurs de $n=10^3$ à $n=10^{6}$.
+    - a permis de constater qu'il n'y a de "vitesse" de convergence pour le cas $\alpha = 0.9$ : en fait les $\sigma^2$ n'admettent dans ce cas pas de moment d'ordre 2 et donc le TCL ne s'applique pas
