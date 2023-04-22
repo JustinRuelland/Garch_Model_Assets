@@ -112,8 +112,14 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
   df_ggplot_reel = bind_rows("sans changement"=df_sigma1,"avec changement"=df_sigma2,"avec changement hors\n de la droite"=df_sigma3, .id = "Courbes")
   plot_reel = ggplot(df_ggplot_reel) + geom_line(aes(x = Date, y=V2, color= Courbes))+ ylab("Sigma carré") +ggtitle("Graphe des sigma2 réels")
   ggsave("Graphe_sigma2 réels.png",width=10,height=5,path="./Graphiques_pour_Latex/Study_ab_constant_sum/")
-  
   print(plot_reel)
+  
+  # Graph 3 : sigma carré réel (que 2 courbes)
+  df_ggplot_reel_2 = bind_rows("sans changement"=df_sigma1, "avec changement"=df_sigma2, .id = "Courbes")
+  plot_reel_2 = ggplot(df_ggplot_reel_2) + geom_line(aes(x = Date, y=V2, color= Courbes))+ ylab("Sigma carré") +ggtitle("Graphe des sigma2 réels")
+  print(plot_reel_2)
+  ggsave("Graphe_sigma2 réels_2.png",width=10,height=5,path="./Graphiques_pour_Latex/Study_ab_constant_sum/")
+
   return(p)
 }
 
