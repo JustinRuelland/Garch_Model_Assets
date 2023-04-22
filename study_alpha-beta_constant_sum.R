@@ -127,7 +127,7 @@ sigma2_hat_alpha_beta_constant <- function(alpha2=0.9, n=1000,seed = 8, alpha_di
 moyennes_sigma2_in_test <-function (alpha_chgt = 0.9){
   n_path = 5
   cut = 0.8
-  exp_max = 7
+  exp_max = 6
   
   omega = 0.0001
   theta1 = c(omega, 0.12, 0.85)
