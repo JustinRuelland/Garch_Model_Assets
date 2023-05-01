@@ -22,6 +22,21 @@ simu_eps <- function(n,eps2_init,sigma2_init,theta){
   
   return(eps)}
 
+#pareil que précedemment mais avec ue student pour les etas
+simu_eps_stud <- function(n,eps2_init,sigma2_init,theta){
+  
+  eta = rt(n,df=8)/sqrt(8/6)
+  eta2 = eta**2
+  
+  sigmas2 = c(sigma2_init)
+  for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2[i-1] + theta[3])*sigmas2[i-1]} #sigma
+  
+  eps2 = eta2*sigmas2 
+  eps2[0] = eps2_init
+  eps = sign(eta)*sqrt(eps2)
+  
+  return(eps)}
+
 #simulation des sigmas**2 à partir des epsilon**2 connus
 simu_sigma2 <- function(eps2,theta){
   n = length(eps2)
