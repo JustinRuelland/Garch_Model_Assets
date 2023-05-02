@@ -15,7 +15,7 @@ library(lubridate)
 library(zoo)
 library(forecast)
 library(pracma)
-library(RHmm)
+#library(RHmm)
 
 # DEFINITION DU WORKING DIRECTORY : dans le menu "Session", "Set working directory" 
 # et choisir le dossier "\Garch_Model_Assets"
@@ -69,6 +69,14 @@ p
 
 p = ggplot(as.data.frame(res_for_plot), aes(x=param, y=value, fill=param)) + geom_violin(trim=FALSE)
 p
+
+#test pour vérifier que les moyennes sont bien nulles 
+#(hypothèse de normalité justifiée par ce qui suit)
+print(t.test(res$beta,
+       alternative = "two.sided", mu = 0, paired = FALSE, var.equal = FALSE,
+       conf.level = 0.95)$p.value) #alpha
+
+
 
 #QML sur le CAC40 en 2015/2016
 eps2_cac = data$rendement2[1:500]
@@ -125,14 +133,19 @@ for(i in 1:100){V = V + var_asymp(simu_eps(10**3,eps2_0,sigma2_0,theta_0)**2)/10
 
 a = min(res$alpha)
 b = max(res$alpha)
-xx = seq(from = a, to = b, by = (b-a)/50)
 sd_hat = sqrt(V[2,2])
+breaks  = (b-a)/1000
+xx = seq(from = a, to = b, by = breaks)[1:1000]
 y = c()
 for(i in 1:length(xx)){y[i]=dnorm(xx[i],mean=0,sd=sd_hat)}
 
-y_hat = hist(res$alpha, breaks = xx, col = "steelblue")$density
-plot(xx[2:51],y_hat,col="red",type='o')
-lines(xx,y)
+df_hist = as.data.frame(res)
+df_hist$y = y
+df_hist$xx = xx
+
+
+ggplot(data = df_hist, mapping = aes(x=alpha)) + geom_histogram(aes(y=..density..),color="blue", fill="cornflowerblue") +
+  geom_line(data = df_hist, aes(x=xx, y=y), color='red',size = 1)
 
 ks.test(res$alpha,"pnorm",mean=0, sd=sd_hat)
 
@@ -153,11 +166,12 @@ source(file= "./QML_Variance.R",local=TRUE) # à importer si pas déjà fait
 theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
-n = 10**4
+n = 10**3
 
 #série simulée, graphique avec les IC
 eps_sim =simu_eps(n,eps2_0,sigma2_0,theta_0)
 res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=FALSE)
+res_emp = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=TRUE)
 
 #paramètres pour les plots
 n_cut  = floor(0.8*length(eps_sim))
@@ -166,26 +180,44 @@ l2 = n_cut+1
 xx = c(1:l1)
 
 res_for_plot = as.data.frame(res)
+res_for_plot$emp_upper.bounds = res_emp$upper.bounds
+res_for_plot$emp_lower.bounds = res_emp$lower.bounds
 res_for_plot$abs= xx
 res_for_plot$eps_sim = eps_sim[l2:length(eps_sim)]
 
 ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps_sim)) + geom_line(color='blue') + 
   geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red') + 
-            geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red')
+            geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red')+
+  geom_line(data = res_for_plot, aes(x=abs, y=emp_upper.bounds), color='green') + 
+  geom_line(data = res_for_plot, aes(x=abs, y=emp_lower.bounds), color='green')
+
 
 #estimation, un peu long à executer
+
+#loi normale
 distrib = c()
 for(i in 1:1000){
   eps_sim = simu_eps(10**3,eps2_0,sigma2_0,theta_0)
   res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=FALSE)
   distrib[i] = res$p.value}
 
-print(length(distrib[distrib<0.05])/length(distrib))
+print(length(distrib[distrib<0.05]))
+
+#empiriques
+distrib = c()
+for(i in 1:1000){
+  eps_sim = simu_eps(10**3,eps2_0,sigma2_0,theta_0)
+  res = func_backtest(eps_sim,-1.96,1.96,0.8,empirical=TRUE)
+  distrib[i] = res$p.value}
+
+print(length(distrib[distrib<0.05]))
 
 
 
-#cac40
-eps_cac = data$rendement
+#cac40 5a
+data_cac = read.csv("./^FCHI.csv")
+data_cac = transform_csv(data_cac)
+eps_cac = data_cac$rendement
 res_cac = func_backtest(eps_cac,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
 res_cac_emp = func_backtest(eps_cac,-1.96,1.96,0.8,empirical=TRUE)
 print(res_cac$p.value)
@@ -211,6 +243,88 @@ ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps_cac)) + geom_line(color='b
 
 
 
+#DAX
+data_DAX = read.csv("./DAX.csv") #fichier csv de Yahoo finance
+data_DAX = transform_csv(data_DAX)
+eps_dax = data_DAX$rendement
+plot(eps_dax)
+res_dax = func_backtest(eps_dax,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_dax_emp = func_backtest(eps_dax,-1.96,1.96,0.8,empirical=TRUE)
+print(res_dax$p.value)
+print(res_dax_emp$p.value)
+
+#Arcelor Mittal
+data_mt = read.csv("./MT.csv") #fichier csv de Yahoo finance
+data_mt = transform_csv(data_mt)
+eps_mt = data_mt$rendement
+plot(eps_mt)
+res_mt = func_backtest(eps_mt,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_mt_emp = func_backtest(eps_mt,-1.96,1.96,0.8,empirical=TRUE)
+print(res_mt$p.value)
+print(res_mt_emp$p.value)
+
+#Nikkei 225
+data_nk = read.csv("./^N225.csv") #fichier csv de Yahoo finance
+data_nk = transform_csv(data_nk)
+eps_nk = data_nk$rendement
+plot(eps_nk)
+res_nk = func_backtest(eps_nk,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_nk_emp = func_backtest(eps_nk,-1.96,1.96,0.8,empirical=TRUE)
+print(res_nk$p.value)
+print(res_nk_emp$p.value)
+
+#euro stoxx 50
+data_es = read.csv("./^STOXX50E.csv") #fichier csv de Yahoo finance
+data_es = transform_csv(data_es)
+eps_es = data_es$rendement
+plot(eps_es)
+res_es = func_backtest(eps_es,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_es_emp = func_backtest(eps_es,-1.96,1.96,0.8,empirical=TRUE)
+print(res_es$p.value)
+print(res_es_emp$p.value)
+
+
+#GOOGLE
+data_go = read.csv("./GOOG.csv") #fichier csv de Yahoo finance
+data_go = transform_csv(data_go)
+eps_go = data_go$rendement
+plot(eps_go)
+res_go = func_backtest(eps_go,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_go_emp = func_backtest(eps_go,-1.96,1.96,0.8,empirical=TRUE)
+print(res_go$p.value)
+print(res_go_emp$p.value)
+
+#Stellantis
+data_ste = read.csv("STLAP.PA.csv") #fichier csv de Yahoo finance
+data_ste = transform_csv(data_ste)
+eps_ste = data_ste$rendement
+eps_ste = eps_ste[300:length(eps_ste)]
+res_ste = func_backtest(eps_ste,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_ste_emp = func_backtest(eps_ste,-1.96,1.96,0.8,empirical=TRUE)
+print(res_ste$p.value)
+print(res_ste_emp$p.value)
+
+#Walmart
+data_w = read.csv("WMT.csv") #fichier csv de Yahoo finance
+data_w = transform_csv(data_w)
+eps_w = data_w$rendement
+plot(eps_w)
+res_w = func_backtest(eps_w,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_w_emp = func_backtest(eps_w,-1.96,1.96,0.8,empirical=TRUE)
+print(res_w$p.value)
+print(res_w_emp$p.value)
+
+#EUR/USD
+data_eu = read.csv("EURUSD=X.csv") #fichier csv de Yahoo finance
+data_eu = transform_csv(data_eu)
+eps_eu = data_eu$rendement
+plot(eps_eu)
+res_eu = func_backtest(eps_eu,-1.96,1.96,0.8,empirical=FALSE) #loi normale 5%
+res_eu_emp = func_backtest(eps_eu,-1.96,1.96,0.8,empirical=TRUE)
+print(res_eu$p.value)
+print(res_eu_emp$p.value)
+
+
 #b) carré des rendements
 
 #série simulée
@@ -218,11 +332,11 @@ theta_0 = c(10**(-4),0.12,0.83)
 eps2_0 = 0 
 sigma2_0 = theta_0[1]/(1-theta_0[2]-theta_0[3])
 
-eps2_sim = simu_eps(2000,eps2_0,sigma2_0,theta_0)**2
-res = backtest_square(eps2_sim,0.75)
+eps2_sim = simu_eps(1000,eps2_0,sigma2_0,theta_0)**2
+res = backtest_square(eps2_sim,0.8)
 
 n = length(eps2_sim)
-n_cut  = floor(0.75*n)
+n_cut  = floor(0.8*n)
 l1 = n-n_cut
 l2 = n_cut+1
 xx = c(1:l1)
@@ -230,7 +344,8 @@ res_for_plot = as.data.frame(res)
 res_for_plot$eps2 = eps2_sim[l2:length(eps2_sim)]
 res_for_plot$abs= xx
 ggplot(data = res_for_plot, mapping = aes(x=abs,y=eps2)) + geom_line(color='blue') + 
-  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')
+  geom_line(data = res_for_plot, aes(x=abs, y=upper.bounds), color='red')+
+  geom_line(data = res_for_plot, aes(x=abs, y=lower.bounds), color='red')
 
 #estimation
 distrib = c()
@@ -270,9 +385,10 @@ n = 10**3
 
 cpt = 0
 cpt_emp = 0
-for(i in 1:100){
-  eta_lap = runif(n,min= -1, max= 1) #loi uniforme
-  eta_lap = (eta_lap-mean(eta_lap))/sd(eta_lap)
+for(i in 1:1){
+  eta_lap = runif(n,min= -sqrt(3), max= sqrt(3)) #loi uniforme
+  #eta_lap = rlnorm(n,0, 2)
+  #eta_lap = (eta_lap-mean(eta_lap))/sd(eta_lap)
   eta2_lap = eta_lap**2
   sigmas2 = c(sigma2_0)
   for(i in 2:n){sigmas2[i] = theta[1] + (theta[2]*eta2_lap[i-1] + theta[3])*sigmas2[i-1]} #sigma
@@ -286,7 +402,8 @@ for(i in 1:100){
   if(res_lap$p.value<0.05){cpt=cpt+1}
   if(res_lap_emp$p.value<0.05){cpt_emp=cpt_emp+1} }
   
-print(c(cpt,cpt_emp)/100)
+print(c(cpt,cpt_emp))
+
 
 #plot de la dernière simulation pour illustrer
 n = length(eps_lap)

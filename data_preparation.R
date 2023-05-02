@@ -3,7 +3,7 @@ transform_csv <- function(data){
   data = rename(data, c("Prix"="Open"))
   data$Prix = as.numeric(data$Prix)
   data$Date = as.Date(data$Date)
-  
+  data = drop_na(data)
   data = mutate(data, rendement = log(data$Prix/lag(data$Prix)))
   data = mutate(data, rendement2 = rendement**2)
   return(data[-1,])

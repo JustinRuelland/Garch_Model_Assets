@@ -89,7 +89,8 @@ backtest_square <-function(eps2,cut){
   n_cut = n_cut+1
   eps2_test = eps2[n_cut:n]
   sigma2_test = sigma2_hat[n_cut:n]
-  upper = qchisq(df=1,p=0.95)*sigma2_test
+  lower = qchisq(df=1,p=0.025)*sigma2_test
+  upper = qchisq(df=1,p=0.975)*sigma2_test
   outside = length(eps2_test[(eps2_test>upper)])
   inside = n - n_cut + 1 -outside
   
@@ -101,6 +102,7 @@ backtest_square <-function(eps2,cut){
   colnames(res) = c("p.value","upper.bounds")
   res$p.value = chisq.test(obs,p=proba)$p.value
   res$upper.bounds = upper
+  res$lower.bounds = lower
   
   return(res)}
 
