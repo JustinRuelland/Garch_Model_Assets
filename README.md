@@ -19,8 +19,24 @@ Contributors :
 The dissertation and the summary are written in French and availabe in the folder "Documents".
 
 ## Code organization
-Comming soon.
+The files statapp_main.R and main.Rmd import all other files and use their functions.
 
+The other files are :
+- general functions : 
+  - data_preparation.R
+  - condition_stationnarite.R
+  - white_noise_laws.R
+  - simulation_series.R
+
+- Estimation, prediction and validation :
+  - QML_variance.R
+  - prevision.R 
+
+- comparaison_model.R
+
+- test of the power of the backtest during a "change in GARCH" :
+  - puissance_test_chgtGARCH.R
+  - study_alpha-beta_constant_sum.R
 
 ### Les fonctions implémentées
 Brèves présentations des différentes fonctions implémentées dans chaque fichier.
