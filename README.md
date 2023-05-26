@@ -16,7 +16,7 @@ Contributors :
 * [Justin Ruelland](https://github.com/JustinRuelland)
 
 ## Reports
-The dissertation and the summary are written in French and availabe in the folder "Documents".
+The dissertation and the summary are written in French and availabe in the folder "Notes rédigées".
 
 ## Code organization
 The files statapp_main.R and main.Rmd import all other files and use their functions.
