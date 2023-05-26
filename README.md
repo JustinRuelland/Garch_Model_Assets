@@ -1,6 +1,6 @@
 # Garch_Model_Assets
 ## General information
-Second year project at ENSAE Paris. 
+Eight months project supervised by Prof. *Jean-Michel Zakoïan*, [CREST](https://crest.science/); during the second year of studies at ENSAE Paris.
 
 The aim of the project was the medium or long term predictions of powers of financial returns, by using the GARCH model. We have worked on simulated data and real data downloaded on [Yahoo! Finance](https://finance.yahoo.com/).
 
