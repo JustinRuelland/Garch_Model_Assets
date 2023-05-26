@@ -1,5 +1,30 @@
 # Garch_Model_Assets
-## Les fonctions implémentées
+## General information
+Second year project at ENSAE Paris. 
+
+The aim of the project was the medium or long term predictions of powers of financial returns, by using the GARCH model. We have worked on simulated data and real data downloaded on [Yahoo! Finance](https://finance.yahoo.com/).
+
+We have implemented the estimation (QML - Quasi-Maximum Likelihood), the predictions (log-returns and square of log-returns) and the validation (backtest) of the GARCH model. Our backtest power tests have led us to focus particularly on a special case: a change in GARCH (series simulated over two periods, each period corresponding to a new GARCH parameter). The backtest showed a remarkable area of low test power in this particular case.
+We have briefly compared the results with other model (basic HMM, moving average and basic neural nets) by the Diebold-Mariano test.
+
+Grade : waiting for it.
+
+Contributors : 
+* [Thomas Aujoux](https://github.com/Thomasaujoux)
+* [Maël Duverger](https://github.com/mduv31)
+* [Louis Geist](https://github.com/louisgeist)
+* [Justin Ruelland](https://github.com/JustinRuelland)
+
+## Reports
+The dissertation and the summary are written in French and availabe in the folder "Documents".
+
+## Code organization
+Comming soon.
+
+
+### Les fonctions implémentées
+Brèves présentations des différentes fonctions implémentées dans chaque fichier.
+
 - Fichier **data_preparation.R** :
   - *transform_csv* : fonction pour transformer le csv de Yahoo finance en dataframe avec les rendements et sans les variables qui ne nous intéresse pas
   - *plot_series_temp* : réalise les graphiques des prix, rendements et rendements au carré en fonction du temps
