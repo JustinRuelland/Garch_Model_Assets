@@ -7,7 +7,7 @@ The aim of the project was the medium or long term predictions of powers of fina
 We have implemented the estimation (QML - Quasi-Maximum Likelihood), the predictions (log-returns and square of log-returns) and the validation (backtest) of the GARCH model. Our backtest power tests have led us to focus particularly on a special case: a change in GARCH (series simulated over two periods, each period corresponding to a new GARCH parameter). The backtest showed a remarkable area of low test power in this particular case.
 We have briefly compared the results with other model (basic HMM, moving average and basic neural nets) by the Diebold-Mariano test.
 
-Grade : waiting for it.
+Grade : 17.4.
 
 Contributors : 
 * [Thomas Aujoux](https://github.com/Thomasaujoux)
